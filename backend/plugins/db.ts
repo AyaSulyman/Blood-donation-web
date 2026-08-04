@@ -1,29 +1,24 @@
 import fp from "fastify-plugin";
 import { FastifyInstance } from "fastify";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-export interface Product {
-  id: number;
-  name: string;
-  price: number;
-}
+dotenv.config();
 
-export interface MockDb {
-  products: Product[];
-}
-declare module "fastify" {
-  interface FastifyInstance {
-    db: MockDb;
-  }
-}
 async function dbPlugin(fastify: FastifyInstance) {
-  const mockDb: MockDb = {
-    products: [
-      { id: 1, name: "Wireless Mouse", price: 29.99 },
-      { id: 2, name: "Mechanical Keyboard", price: 89.99 },
-    ],
-  };
+  const mongoUri = process.env.MONGO_URI;
+  const dbName = process.env.DB_NAME;
 
-  fastify.decorate("db", mockDb);
+  if (!mongoUri) {
+    throw new Error("MONGO_URI environment variable is missing!");
+  }
+
+  try {
+    await mongoose.connect(mongoUri, { dbName: dbName });
+  } catch (error) {
+    fastify.log.error("MongoDB connection failed:");
+    throw error;
+  }
 }
 
 export default fp(dbPlugin);
