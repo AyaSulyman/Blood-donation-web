@@ -9,11 +9,13 @@
       </RouterLink>
     </header>
 
-    <main :class="$style.main">
+    <div :class="$style.split">
+      <AuthAyahPanel />
+
+      <main :class="$style.main">
       <div :class="$style.card">
         <h1 :class="$style.title">Welcome back</h1>
         <p :class="$style.subtitle">Log in to manage your donations and appointments.</p>
-
         <form :class="$style.form" @submit.prevent="handleSubmit" novalidate>
           <div v-if="authStore.error" :class="$style.formError" role="alert">
             {{ authStore.error }}
@@ -27,7 +29,7 @@
               name="email"
               autocomplete="email"
               placeholder="you@example.com"
-              :class="[$style.input, errors.email && $style.inputError]"
+              :class="[$style.input, touched.email && errors.email && $style.inputError]"
               @blur="touched.email = true"
             />
             <span v-if="touched.email && errors.email" :class="$style.fieldError">{{ errors.email }}</span>
@@ -42,7 +44,7 @@
                 name="password"
                 autocomplete="current-password"
                 placeholder="Enter your password"
-                :class="[$style.input, errors.password && $style.inputError]"
+                :class="[$style.input, touched.password && errors.password && $style.inputError]"
                 @blur="touched.password = true"
               />
               <button type="button" :class="$style.togglePassword" @click="showPassword = !showPassword">
@@ -68,9 +70,10 @@
         <p :class="$style.switchText">
           Don't have an account?
           <RouterLink to="/signup" :class="$style.link">Sign up</RouterLink>
-        </p>
+       </p>
       </div>
-    </main>
+      </main>
+    </div>
   </div>
 </template>
 
@@ -78,6 +81,7 @@
 import { reactive, computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import AuthAyahPanel from '@/components/AuthAyahPanel.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -138,8 +142,13 @@ $color-error: #dc2626;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #f9c9bc 0%, #f0a894 100%);
+  background: #ffffff;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.split {
+  flex: 1;
+  display: flex;
 }
 
 .topbar {
@@ -230,6 +239,11 @@ $color-error: #dc2626;
   border-radius: 0.5rem;
   outline: none;
   width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: #c7cbd1;
+  }
 
   &:focus {
     border-color: $color-primary;

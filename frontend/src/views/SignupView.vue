@@ -9,11 +9,13 @@
       </RouterLink>
     </header>
 
-    <main :class="$style.main">
+    <div :class="$style.split">
+      <AuthAyahPanel />
+
+      <main :class="$style.main">
       <div :class="$style.card">
         <h1 :class="$style.title">Create your account</h1>
         <p :class="$style.subtitle">Join the community and start saving lives.</p>
-
         <form :class="$style.form" @submit.prevent="handleSubmit" novalidate>
           <div v-if="authStore.error" :class="$style.formError" role="alert">
             {{ authStore.error }}
@@ -27,7 +29,7 @@
               name="fullName"
               autocomplete="name"
               placeholder="Jane Doe"
-              :class="[$style.input, errors.fullName && $style.inputError]"
+              :class="[$style.input, touched.fullName && errors.fullName && $style.inputError]"
               @blur="touched.fullName = true"
             />
             <span v-if="touched.fullName && errors.fullName" :class="$style.fieldError">{{ errors.fullName }}</span>
@@ -41,7 +43,7 @@
               name="email"
               autocomplete="email"
               placeholder="you@example.com"
-              :class="[$style.input, errors.email && $style.inputError]"
+              :class="[$style.input, touched.email && errors.email && $style.inputError]"
               @blur="touched.email = true"
             />
             <span v-if="touched.email && errors.email" :class="$style.fieldError">{{ errors.email }}</span>
@@ -55,7 +57,7 @@
               name="phone"
               autocomplete="tel"
               placeholder="+1 555 000 0000"
-              :class="[$style.input, errors.phone && $style.inputError]"
+              :class="[$style.input, touched.phone && errors.phone && $style.inputError]"
               @blur="touched.phone = true"
             />
             <span v-if="touched.phone && errors.phone" :class="$style.fieldError">{{ errors.phone }}</span>
@@ -67,7 +69,7 @@
               <select
                 v-model="form.bloodGroup"
                 name="bloodGroup"
-                :class="[$style.input, $style.select, errors.bloodGroup && $style.inputError]"
+                :class="[$style.input, $style.select, touched.bloodGroup && errors.bloodGroup && $style.inputError]"
                 @blur="touched.bloodGroup = true"
               >
                 <option value="" disabled>Select</option>
@@ -85,7 +87,7 @@
                   name="password"
                   autocomplete="new-password"
                   placeholder="At least 8 characters"
-                  :class="[$style.input, errors.password && $style.inputError]"
+                  :class="[$style.input, touched.password && errors.password && $style.inputError]"
                   @blur="touched.password = true"
                 />
                 <button type="button" :class="$style.togglePassword" @click="showPassword = !showPassword">
@@ -116,7 +118,7 @@
               name="confirmPassword"
               autocomplete="new-password"
               placeholder="Re-enter your password"
-              :class="[$style.input, errors.confirmPassword && $style.inputError]"
+              :class="[$style.input, touched.confirmPassword && errors.confirmPassword && $style.inputError]"
               @blur="touched.confirmPassword = true"
             />
             <span v-if="touched.confirmPassword && errors.confirmPassword" :class="$style.fieldError">{{ errors.confirmPassword }}</span>
@@ -138,7 +140,8 @@
           <RouterLink to="/login" :class="$style.link">Log in</RouterLink>
         </p>
       </div>
-    </main>
+      </main>
+    </div>
   </div>
 </template>
 
@@ -146,7 +149,7 @@
 import { reactive, computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore, BLOOD_GROUPS, type BloodGroup } from '@/stores/auth'
-
+import AuthAyahPanel from '@/components/AuthAyahPanel.vue'
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -250,8 +253,13 @@ $color-error: #dc2626;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #f9c9bc 0%, #f0a894 100%);
+  background: #ffffff;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.split {
+  flex: 1;
+  display: flex;
 }
 
 .topbar {
@@ -354,6 +362,11 @@ $color-error: #dc2626;
   outline: none;
   width: 100%;
   background: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: #c7cbd1;
+  }
 
   &:focus {
     border-color: $color-primary;
