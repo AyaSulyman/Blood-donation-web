@@ -5,6 +5,7 @@ export const registerSchema: FastifySchema = {
     type: "object",
     required: [
       "name",
+      "username",
       "email",
       "phone",
       "address",
@@ -14,6 +15,7 @@ export const registerSchema: FastifySchema = {
     ],
     properties: {
       name: { type: "string", minLength: 2 },
+      username: { type: "string", minLength: 1 },
       email: { type: "string", format: "email" },
       phone: { type: "string", minLength: 8, maxLength: 8 },
       address: { type: "string", minLength: 1 },
@@ -34,7 +36,31 @@ export const registerSchema: FastifySchema = {
           type: "object",
           properties: {
             id: { type: "string" },
-            email: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+};
+
+export const loginSchema: FastifySchema = {
+  body: {
+    type: "object",
+    required: ["username", "password"],
+    properties: {
+      username: { type: "string", minLength: 1 },
+      password: { type: "string", minLength: 1 },
+    },
+  },
+  response: {
+    200: {
+      type: "object",
+      properties: {
+        message: { type: "string" },
+        user: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
             name: { type: "string" },
           },
         },

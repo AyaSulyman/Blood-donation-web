@@ -12,6 +12,10 @@ interface RegisterBody {
   password: string;
   username: string;
 }
+interface LoginBody {
+  username: string;
+  password: string;
+}
 
 export async function registerHandler(
   request: FastifyRequest<{ Body: RegisterBody }>,
@@ -39,5 +43,34 @@ export async function registerHandler(
   return reply.code(201).send({
     message: "User registered successfully",
     user: createdUser,
+  });
+}
+
+export async function loginHandler(
+  request: FastifyRequest<{ Body: LoginBody }>,
+  reply: FastifyReply,
+) {
+  const { username, password } = request.body;
+  const existingUser = await User.findOne({ username }).select("+password");
+  if (!existingUser) {
+    return reply.code(404).send({ message: "Invalid username or password" });
+  }
+  const isMatchingPassword = await bcrypt.compare(
+    password,
+    existingUser.password,
+  );
+  if (!isMatchingPassword) {
+    return reply.code(404).send({ message: "Invalid username or password" });
+  }
+  const token = await (reply as any).jwtSign(
+    {
+      id: existingUser._id,
+      username: existingUser.username,
+    },
+    { expiresIn: "1h" },
+  );
+  return reply.code(201).send({
+    message: "User logged in successfully",
+    token,
   });
 }
