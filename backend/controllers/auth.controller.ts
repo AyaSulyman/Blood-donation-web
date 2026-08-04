@@ -40,4 +40,5 @@ export async function registerHandler(
     message: "User registered successfully",
     user: createdUser,
   });
+
 }
