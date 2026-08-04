@@ -18,14 +18,15 @@
       </nav>
 
       <div :class="$style.authButtons">
-        <button :class="$style.btnLogin">Log in</button>
-        <button :class="$style.btnSignup">Sign up</button>
+        <RouterLink to="/login" :class="$style.btnLogin">Log in</RouterLink>
+        <RouterLink to="/signup" :class="$style.btnSignup">Sign up</RouterLink>
       </div>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
 </script>
 
 <style module lang="scss">
@@ -96,12 +97,15 @@ $color-border: #f3f4f6;
     gap: 0.75rem;
 
     .btnLogin {
+      display: inline-block;
       padding: 0.5rem 1rem;
       font-size: 0.875rem;
       font-weight: 500;
+      color: #1f2937;
       background: #ffffff;
       border: 1px solid #d1d5db;
       border-radius: 0.375rem;
+      text-decoration: none;
       cursor: pointer;
 
       &:hover {
@@ -110,6 +114,7 @@ $color-border: #f3f4f6;
     }
 
     .btnSignup {
+      display: inline-block;
       padding: 0.5rem 1rem;
       font-size: 0.875rem;
       font-weight: 500;
@@ -117,6 +122,7 @@ $color-border: #f3f4f6;
       background: $color-primary;
       border: none;
       border-radius: 0.375rem;
+      text-decoration: none;
       cursor: pointer;
 
       &:hover {
