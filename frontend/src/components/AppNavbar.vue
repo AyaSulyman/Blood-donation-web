@@ -1,18 +1,19 @@
 <template>
   <header :class="$style.navbar">
     <div :class="$style.navInner">
-      <router-link to="/" :class="$style.brand">
+      <div :class="$style.brand">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" :class="$style.brandIcon">
           <path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75 0 7.312 9.75 11.25 9.75 11.25s9.75-3.938 9.75-11.25c0-5.385-4.365-9.75-9.75-9.75z" />
         </svg>
         <span :class="$style.brandTitle">LifeDrop</span>
-      </router-link>
+      </div>
 
       <nav :class="$style.navLinks">
-        <router-link to="/">Home</router-link>
+        <a href="#">Home</a>
         <a href="#">About</a>
-        <router-link to="/donate">Donate</router-link>
-        <router-link to="/domains">Centers</router-link>
+        <a href="#">Donate</a>
+        <a href="#">Events</a>
+        <a href="#">Centers</a>
         <a href="#">Contact</a>
       </nav>
 
@@ -54,7 +55,6 @@ $color-border: #f3f4f6;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    text-decoration: none;
 
     .brandIcon {
       width: 1.5rem;
@@ -80,7 +80,7 @@ $color-border: #f3f4f6;
       color: #4b5563;
       text-decoration: none;
 
-      &:hover, &:global(.router-link-active) {
+      &:hover {
         color: $color-primary;
       }
     }
