@@ -1,21 +1,20 @@
 <template>
   <header :class="$style.navbar">
     <div :class="$style.navInner">
-      <RouterLink to="/" :class="$style.brand" aria-label="LifeDrop home">
+    <RouterLink to="/" :class="$style.brand" aria-label="LifeDrop home">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" :class="$style.brandIcon">
           <path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75 0 7.312 9.75 11.25 9.75 11.25s9.75-3.938 9.75-11.25c0-5.385-4.365-9.75-9.75-9.75z" />
         </svg>
         <span :class="$style.brandTitle">LifeDrop</span>
-      </RouterLink>
+</RouterLink>
 
-      <nav :class="[$style.navLinks, { [$style.navLinksOpen]: menuOpen }]" aria-label="Primary navigation">
-        <RouterLink to="/" @click="closeMenu">Home</RouterLink>
-        <a href="#" @click.prevent="closeMenu">About</a>
-        <a href="#" @click.prevent="closeMenu">Donate</a>
-        <a href="#" @click.prevent="closeMenu">Events</a>
-        <a href="#" @click.prevent="closeMenu">Centers</a>
-        <RouterLink to="/contact" @click="closeMenu">Contact</RouterLink>
-      </nav>
+<nav :class="[$style.navLinks, { [$style.navLinksOpen]: menuOpen }]" aria-label="Primary navigation">
+  <RouterLink to="/" @click="closeMenu">Home</RouterLink>
+  <a href="#" @click.prevent="closeMenu">About</a>
+  <RouterLink to="/donate" @click="closeMenu">Donate</RouterLink>
+  <RouterLink to="/domains" @click="closeMenu">Centers</RouterLink>
+  <RouterLink to="/contact" @click="closeMenu">Contact</RouterLink>
+</nav>
 
       <div :class="$style.authButtons">
         <button :class="$style.btnLogin" type="button">Log in</button>
@@ -108,8 +107,9 @@ $color-border: #f3f4f6;
       text-decoration: none;
       transition: color 0.2s ease;
 
-      &:hover,
-      &[aria-current='page'] {
+&:hover,
+&:global(.router-link-active),
+&[aria-current='page'] {
         color: $color-primary;
       }
 
