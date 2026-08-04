@@ -28,7 +28,7 @@
         <ul>
           <li><a href="#">Eligibility Requirements</a></li>
           <li><a href="#">Donor FAQ</a></li>
-          <li><a href="#">Contact Us</a></li>
+          <li><RouterLink to="/contact">Contact Us</RouterLink></li>
           <li><a href="#">Privacy Policy</a></li>
         </ul>
       </div>
@@ -43,6 +43,7 @@
 </template>
 
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
 </script>
 
 <style module lang="scss">
