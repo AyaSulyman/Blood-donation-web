@@ -43,6 +43,21 @@ const userSchema = new Schema<IUser>(
       unique: true,
       trim: true,
     },
+    address: {
+      type: String,
+      required: [true, "Address is required"],
+      trim: true,
+    },
+    role: {
+      type: String,
+      required: [true, "Role is required"],
+      trim: true,
+    },
+    bloodType: {
+      type: String,
+      required: [true, "Blood type is required"],
+      trim: true,
+    },
   },
   { timestamps: true },
 );
