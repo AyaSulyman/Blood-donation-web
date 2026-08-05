@@ -9,7 +9,6 @@ export const registerSchema: FastifySchema = {
       "email",
       "phone",
       "address",
-      "role",
       "bloodType",
       "password",
     ],
@@ -19,7 +18,6 @@ export const registerSchema: FastifySchema = {
       email: { type: "string", format: "email" },
       phone: { type: "string", minLength: 8, maxLength: 8 },
       address: { type: "string", minLength: 1 },
-      role: { type: "string", enum: ["donar", "recipient"] },
       bloodType: {
         type: "string",
         enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],

@@ -4,13 +4,14 @@ import jwtPlugin from "./plugins/jwt.ts";
 import productRoutes from "./routes/products.route.ts";
 import process from "process";
 import authRoutes from "./routes/auth.route.ts";
+import recipientsRoutes from "./routes/recipients.route.ts";
 
 const fastify = Fastify({ logger: true });
 await fastify.register(dbPlugin);
 await fastify.register(jwtPlugin);
 await fastify.register(productRoutes, { prefix: "/api" });
 await fastify.register(authRoutes, { prefix: "/api" });
-
+await fastify.register(recipientsRoutes, { prefix: "/api" });
 try {
   await fastify.listen({ port: 3000 });
 } catch (err) {

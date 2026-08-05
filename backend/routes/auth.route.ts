@@ -1,4 +1,3 @@
-// routes/auth.route.ts
 import { FastifyInstance } from "fastify";
 import { loginHandler, registerHandler } from "../controllers/auth.controller";
 import { registerSchema, loginSchema } from "../schemas/auth.schema";

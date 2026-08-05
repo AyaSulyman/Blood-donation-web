@@ -6,7 +6,6 @@ export interface IUser {
   email: string;
   password: string;
   phone: string;
-  role: string;
   address: string;
   bloodType: string;
 }
@@ -46,11 +45,6 @@ const userSchema = new Schema<IUser>(
     address: {
       type: String,
       required: [true, "Address is required"],
-      trim: true,
-    },
-    role: {
-      type: String,
-      required: [true, "Role is required"],
       trim: true,
     },
     bloodType: {

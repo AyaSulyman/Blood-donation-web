@@ -1,13 +1,12 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import bcrypt from "bcrypt";
-import User from "../models/auth.model";
+import User from "../models/user.model";
 
 interface RegisterBody {
   name: string;
   email: string;
   phone: string;
   address: string;
-  role: string;
   bloodType: string;
   password: string;
   username: string;
@@ -67,7 +66,7 @@ export async function loginHandler(
       id: existingUser._id,
       username: existingUser.username,
     },
-    { expiresIn: "1h" },
+    { expiresIn: "7d" },
   );
   return reply.code(201).send({
     message: "User logged in successfully",
