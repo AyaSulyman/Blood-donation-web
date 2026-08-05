@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue'
 import DonateView from '@/views/DonateView.vue'
 import DonorDetailsView from '@/views/DonorDetailsView.vue'
 import ContactView from '@/views/ContactView.vue'
+import AboutView from '@/views/AboutView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,7 +12,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('@/views/HomeView.vue'),
+      component: HomeView,
     },
     {
       path: '/login',
@@ -26,8 +27,7 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      component: () => import('@/views/AboutView.vue'),
-      component: HomeView,
+      component: AboutView,
     },
     {
       path: '/donate',

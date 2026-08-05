@@ -16,23 +16,28 @@
       <div :class="$style.card">
         <h1 :class="$style.title">Welcome back</h1>
         <p :class="$style.subtitle">Log in to manage your donations and appointments.</p>
+
         <form :class="$style.form" @submit.prevent="handleSubmit" novalidate>
+          <div v-if="showRegisteredBanner" :class="$style.formSuccess">
+            Account created — log in with your new username and password.
+          </div>
+
           <div v-if="authStore.error" :class="$style.formError" role="alert">
             {{ authStore.error }}
           </div>
 
           <label :class="$style.field">
-            <span :class="$style.fieldLabel">Email</span>
+            <span :class="$style.fieldLabel">Username</span>
             <input
-              v-model.trim="form.email"
-              type="email"
-              name="email"
-              autocomplete="email"
-              placeholder="you@example.com"
-              :class="[$style.input, touched.email && errors.email && $style.inputError]"
-              @blur="touched.email = true"
+              v-model.trim="form.username"
+              type="text"
+              name="username"
+              autocomplete="username"
+              placeholder="your_username"
+              :class="[$style.input, touched.username && errors.username && $style.inputError]"
+              @blur="touched.username = true"
             />
-            <span v-if="touched.email && errors.email" :class="$style.fieldError">{{ errors.email }}</span>
+            <span v-if="touched.username && errors.username" :class="$style.fieldError">{{ errors.username }}</span>
           </label>
 
           <label :class="$style.field">
@@ -70,7 +75,7 @@
         <p :class="$style.switchText">
           Don't have an account?
           <RouterLink to="/signup" :class="$style.link">Sign up</RouterLink>
-       </p>
+        </p>
       </div>
       </main>
     </div>
@@ -79,33 +84,34 @@
 
 <script setup lang="ts">
 import { reactive, computed, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import AuthAyahPanel from '@/components/AuthAyahPanel.vue'
 
+const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
+const showRegisteredBanner = computed(() => route.query.registered === 'true')
+
 const form = reactive({
-  email: '',
+  username: '',
   password: '',
   remember: false,
 })
 
 const touched = reactive({
-  email: false,
+  username: false,
   password: false,
 })
 
 const showPassword = ref(false)
 
 const errors = computed(() => {
-  const e: Partial<Record<'email' | 'password', string>> = {}
+  const e: Partial<Record<'username' | 'password', string>> = {}
 
-  if (!form.email) {
-    e.email = 'Email is required'
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    e.email = 'Enter a valid email address'
+  if (!form.username) {
+    e.username = 'Username is required'
   }
 
   if (!form.password) {
@@ -118,13 +124,13 @@ const errors = computed(() => {
 const isValid = computed(() => Object.keys(errors.value).length === 0)
 
 async function handleSubmit() {
-  touched.email = true
+  touched.username = true
   touched.password = true
 
   if (!isValid.value) return
 
   try {
-    await authStore.login({ email: form.email, password: form.password })
+    await authStore.login({ username: form.username, password: form.password })
     router.push('/')
   } catch {
     // authStore.error already holds the message; nothing else to do here.
@@ -220,6 +226,15 @@ $color-error: #dc2626;
   font-size: 0.8125rem;
 }
 
+.formSuccess {
+  padding: 0.625rem 0.75rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.5rem;
+  color: #15803d;
+  font-size: 0.8125rem;
+}
+
 .field {
   display: flex;
   flex-direction: column;
@@ -239,11 +254,6 @@ $color-error: #dc2626;
   border-radius: 0.5rem;
   outline: none;
   width: 100%;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-
-  &:hover {
-    border-color: #c7cbd1;
-  }
 
   &:focus {
     border-color: $color-primary;

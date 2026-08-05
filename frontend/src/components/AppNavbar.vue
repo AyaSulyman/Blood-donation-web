@@ -1,36 +1,23 @@
 <template>
   <header :class="$style.navbar">
     <div :class="$style.navInner">
-    <RouterLink to="/" :class="$style.brand" aria-label="LifeDrop home">
+      <RouterLink to="/" :class="$style.brand" aria-label="LifeDrop home">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" :class="$style.brandIcon">
           <path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75 0 7.312 9.75 11.25 9.75 11.25s9.75-3.938 9.75-11.25c0-5.385-4.365-9.75-9.75-9.75z" />
         </svg>
         <span :class="$style.brandTitle">LifeDrop</span>
-</RouterLink>
+      </RouterLink>
 
-      <nav :class="$style.navLinks">
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-        <a href="#">Donate</a>
-        <a href="#">Events</a>
-        <a href="#">Centers</a>
-        <a href="#">Contact</a>
+      <nav :class="[$style.navLinks, menuOpen && $style.navLinksOpen]" aria-label="Primary navigation">
+        <RouterLink to="/" @click="closeMenu">Home</RouterLink>
+        <RouterLink to="/about" @click="closeMenu">About</RouterLink>
+        <RouterLink to="/donate" @click="closeMenu">Donate</RouterLink>
+        <RouterLink to="/contact" @click="closeMenu">Contact</RouterLink>
       </nav>
 
       <div :class="$style.authButtons">
         <RouterLink to="/login" :class="$style.btnLogin">Log in</RouterLink>
         <RouterLink to="/signup" :class="$style.btnSignup">Sign up</RouterLink>
-<nav :class="[$style.navLinks, { [$style.navLinksOpen]: menuOpen }]" aria-label="Primary navigation">
-  <RouterLink to="/" @click="closeMenu">Home</RouterLink>
-  <a href="#" @click.prevent="closeMenu">About</a>
-  <RouterLink to="/donate" @click="closeMenu">Donate</RouterLink>
-  <RouterLink to="/domains" @click="closeMenu">Centers</RouterLink>
-  <RouterLink to="/contact" @click="closeMenu">Contact</RouterLink>
-</nav>
-
-      <div :class="$style.authButtons">
-        <button :class="$style.btnLogin" type="button">Log in</button>
-        <button :class="$style.btnSignup" type="button">Sign up</button>
       </div>
 
       <button
@@ -52,7 +39,6 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
@@ -120,9 +106,9 @@ $color-border: #f3f4f6;
       text-decoration: none;
       transition: color 0.2s ease;
 
-&:hover,
-&:global(.router-link-active),
-&[aria-current='page'] {
+      &:hover,
+      &:global(.router-link-active),
+      &[aria-current='page'] {
         color: $color-primary;
       }
 
@@ -180,20 +166,9 @@ $color-border: #f3f4f6;
     align-items: center;
     gap: 0.75rem;
 
-    .btnLogin {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: #1f2937;
-      background: #ffffff;
-      border: 1px solid #d1d5db;
-    @media (max-width: 560px) {
-      display: none;
-    }
-
     .btnLogin,
     .btnSignup {
+      display: inline-block;
       padding: 0.5rem 1rem;
       font-size: 0.875rem;
       font-weight: 500;
@@ -204,25 +179,20 @@ $color-border: #f3f4f6;
     }
 
     .btnLogin {
+      color: #1f2937;
       background: #ffffff;
       border: 1px solid #d1d5db;
 
       &:hover {
         background: #f9fafb;
       }
+
+      @media (max-width: 560px) {
+        display: none;
+      }
     }
 
     .btnSignup {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: #ffffff;
-      background: $color-primary;
-      border: none;
-      border-radius: 0.375rem;
-      text-decoration: none;
-      cursor: pointer;
       color: #ffffff;
       background: $color-primary;
       border: 1px solid $color-primary;

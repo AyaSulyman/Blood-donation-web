@@ -16,6 +16,7 @@
       <div :class="$style.card">
         <h1 :class="$style.title">Create your account</h1>
         <p :class="$style.subtitle">Join the community and start saving lives.</p>
+
         <form :class="$style.form" @submit.prevent="handleSubmit" novalidate>
           <div v-if="authStore.error" :class="$style.formError" role="alert">
             {{ authStore.error }}
@@ -24,15 +25,29 @@
           <label :class="$style.field">
             <span :class="$style.fieldLabel">Full name</span>
             <input
-              v-model.trim="form.fullName"
+              v-model.trim="form.name"
               type="text"
-              name="fullName"
+              name="name"
               autocomplete="name"
               placeholder="Jane Doe"
-              :class="[$style.input, touched.fullName && errors.fullName && $style.inputError]"
-              @blur="touched.fullName = true"
+              :class="[$style.input, touched.name && errors.name && $style.inputError]"
+              @blur="touched.name = true"
             />
-            <span v-if="touched.fullName && errors.fullName" :class="$style.fieldError">{{ errors.fullName }}</span>
+            <span v-if="touched.name && errors.name" :class="$style.fieldError">{{ errors.name }}</span>
+          </label>
+
+          <label :class="$style.field">
+            <span :class="$style.fieldLabel">Username</span>
+            <input
+              v-model.trim="form.username"
+              type="text"
+              name="username"
+              autocomplete="username"
+              placeholder="jane_doe"
+              :class="[$style.input, touched.username && errors.username && $style.inputError]"
+              @blur="touched.username = true"
+            />
+            <span v-if="touched.username && errors.username" :class="$style.fieldError">{{ errors.username }}</span>
           </label>
 
           <label :class="$style.field">
@@ -56,7 +71,8 @@
               type="tel"
               name="phone"
               autocomplete="tel"
-              placeholder="+1 555 000 0000"
+              placeholder="71234567"
+              maxlength="8"
               :class="[$style.input, touched.phone && errors.phone && $style.inputError]"
               @blur="touched.phone = true"
             />
@@ -67,15 +83,15 @@
             <label :class="$style.field">
               <span :class="$style.fieldLabel">Blood group</span>
               <select
-                v-model="form.bloodGroup"
-                name="bloodGroup"
-                :class="[$style.input, $style.select, touched.bloodGroup && errors.bloodGroup && $style.inputError]"
-                @blur="touched.bloodGroup = true"
+                v-model="form.bloodType"
+                name="bloodType"
+                :class="[$style.input, $style.select, touched.bloodType && errors.bloodType && $style.inputError]"
+                @blur="touched.bloodType = true"
               >
                 <option value="" disabled>Select</option>
                 <option v-for="group in BLOOD_GROUPS" :key="group" :value="group">{{ group }}</option>
               </select>
-              <span v-if="touched.bloodGroup && errors.bloodGroup" :class="$style.fieldError">{{ errors.bloodGroup }}</span>
+              <span v-if="touched.bloodType && errors.bloodType" :class="$style.fieldError">{{ errors.bloodType }}</span>
             </label>
 
             <label :class="$style.field">
@@ -98,17 +114,36 @@
             </label>
           </div>
 
-          <label :class="$style.field">
-            <span :class="$style.fieldLabel">City <span :class="$style.optional">(optional)</span></span>
-            <input
-              v-model.trim="form.city"
-              type="text"
-              name="city"
-              autocomplete="address-level2"
-              placeholder="Beirut"
-              :class="$style.input"
-            />
-          </label>
+          <div :class="$style.fieldRow">
+            <label :class="$style.field">
+              <span :class="$style.fieldLabel">I am a</span>
+              <select
+                v-model="form.role"
+                name="role"
+                :class="[$style.input, $style.select, touched.role && errors.role && $style.inputError]"
+                @blur="touched.role = true"
+              >
+                <option value="" disabled>Select</option>
+                <option value="donar">Donor</option>
+                <option value="recipient">Recipient</option>
+              </select>
+              <span v-if="touched.role && errors.role" :class="$style.fieldError">{{ errors.role }}</span>
+            </label>
+
+            <label :class="$style.field">
+              <span :class="$style.fieldLabel">Address</span>
+              <input
+                v-model.trim="form.address"
+                type="text"
+                name="address"
+                autocomplete="street-address"
+                placeholder="Beirut, Lebanon"
+                :class="[$style.input, touched.address && errors.address && $style.inputError]"
+                @blur="touched.address = true"
+              />
+              <span v-if="touched.address && errors.address" :class="$style.fieldError">{{ errors.address }}</span>
+            </label>
+          </div>
 
           <label :class="$style.field">
             <span :class="$style.fieldLabel">Confirm password</span>
@@ -148,27 +183,33 @@
 <script setup lang="ts">
 import { reactive, computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { useAuthStore, BLOOD_GROUPS, type BloodGroup } from '@/stores/auth'
+import { useAuthStore, BLOOD_GROUPS, type BloodGroup, type UserRole } from '@/stores/auth'
 import AuthAyahPanel from '@/components/AuthAyahPanel.vue'
+
 const router = useRouter()
 const authStore = useAuthStore()
 
 const form = reactive({
-  fullName: '',
+  name: '',
+  username: '',
   email: '',
   phone: '',
-  bloodGroup: '' as BloodGroup | '',
-  city: '',
+  bloodType: '' as BloodGroup | '',
+  role: '' as UserRole | '',
+  address: '',
   password: '',
   confirmPassword: '',
   agreeToTerms: false,
 })
 
 const touched = reactive({
-  fullName: false,
+  name: false,
+  username: false,
   email: false,
   phone: false,
-  bloodGroup: false,
+  bloodType: false,
+  role: false,
+  address: false,
   password: false,
   confirmPassword: false,
   agreeToTerms: false,
@@ -176,13 +217,17 @@ const touched = reactive({
 
 const showPassword = ref(false)
 
-type FieldName = 'fullName' | 'email' | 'phone' | 'bloodGroup' | 'password' | 'confirmPassword' | 'agreeToTerms'
+type FieldName = keyof typeof touched
 
 const errors = computed(() => {
   const e: Partial<Record<FieldName, string>> = {}
 
-  if (!form.fullName) {
-    e.fullName = 'Full name is required'
+  if (!form.name) {
+    e.name = 'Full name is required'
+  }
+
+  if (!form.username) {
+    e.username = 'Username is required'
   }
 
   if (!form.email) {
@@ -193,10 +238,20 @@ const errors = computed(() => {
 
   if (!form.phone) {
     e.phone = 'Phone number is required'
+  } else if (!/^\d{8}$/.test(form.phone)) {
+    e.phone = 'Enter an 8-digit phone number'
   }
 
-  if (!form.bloodGroup) {
-    e.bloodGroup = 'Select your blood group'
+  if (!form.bloodType) {
+    e.bloodType = 'Select your blood group'
+  }
+
+  if (!form.role) {
+    e.role = 'Select an option'
+  }
+
+  if (!form.address) {
+    e.address = 'Address is required'
   }
 
   if (!form.password) {
@@ -225,18 +280,22 @@ async function handleSubmit() {
     touched[key] = true
   })
 
-  if (!isValid.value || !form.bloodGroup) return
+  if (!isValid.value || !form.bloodType || !form.role) return
 
   try {
     await authStore.signup({
-      fullName: form.fullName,
+      name: form.name,
+      username: form.username,
       email: form.email,
       phone: form.phone,
+      address: form.address,
+      role: form.role,
+      bloodType: form.bloodType,
       password: form.password,
-      bloodGroup: form.bloodGroup,
-      city: form.city || undefined,
     })
-    router.push('/')
+    // The backend doesn't log the user in on register (no token returned),
+    // so send them to log in with their new credentials.
+    router.push({ path: '/login', query: { registered: 'true' } })
   } catch {
     // authStore.error already holds the message; nothing else to do here.
   }

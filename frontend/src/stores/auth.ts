@@ -4,72 +4,72 @@ import { defineStore } from 'pinia'
 export const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const
 export type BloodGroup = (typeof BLOOD_GROUPS)[number]
 
-export interface User {
-  id: string
-  fullName: string
-  email: string
-  phone: string
-  bloodGroup: BloodGroup
-  city?: string
-}
+// NOTE: 'donar' is spelled exactly as the backend's enum expects (a typo on their end,
+// not ours) - see schemas/auth.schema.ts on the backend. Keep it as-is until they fix it,
+// otherwise registration will fail validation.
+export const USER_ROLES = ['donar', 'recipient'] as const
+export type UserRole = (typeof USER_ROLES)[number]
 
 export interface LoginPayload {
-  email: string
+  username: string
   password: string
 }
 
 export interface SignupPayload {
-  fullName: string
+  name: string
+  username: string
   email: string
   phone: string
+  address: string
+  role: UserRole
+  bloodType: BloodGroup
   password: string
-  bloodGroup: BloodGroup
-  city?: string
 }
 
-// TODO(backend): point this at the real API base URL (e.g. via import.meta.env.VITE_API_URL)
-const API_BASE_URL = '/api'
+// Matches backend routes, which are registered with prefix "/api" (see server.ts).
+// TODO(backend): move this to an env var (import.meta.env.VITE_API_URL) once there's
+// a deployed URL - right now this assumes the backend is running locally on port 3000.
+const API_BASE_URL = 'http://localhost:3000/api'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<User | null>(null)
+  // NOTE: the backend's /login response only returns { message, token } - no user object.
+  // There's also no profile endpoint yet (checked routes/ - only auth + a leftover
+  // "products" route from a tutorial template), so we have nothing to fetch the user's
+  // profile from. `user` stays null until that endpoint exists.
   const token = ref<string | null>(localStorage.getItem('lifedrop_token'))
   const loading = ref(false)
   const error = ref<string | null>(null)
 
   const isAuthenticated = computed(() => !!token.value)
 
-  function setSession(newUser: User, newToken: string) {
-    user.value = newUser
+  function setToken(newToken: string) {
     token.value = newToken
     localStorage.setItem('lifedrop_token', newToken)
   }
 
   function clearSession() {
-    user.value = null
     token.value = null
     localStorage.removeItem('lifedrop_token')
   }
 
-  // TODO(backend): replace with the real endpoint contract once it's finalized.
-  // Expected response shape assumed here: { user: User; token: string }
   async function login(payload: LoginPayload) {
     loading.value = true
     error.value = null
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      const res = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
 
+      const data = await res.json().catch(() => null)
+
       if (!res.ok) {
-        const body = await res.json().catch(() => null)
-        throw new Error(body?.message ?? 'Invalid email or password')
+        throw new Error(data?.message ?? 'Invalid username or password')
       }
 
-      const data = (await res.json()) as { user: User; token: string }
-      setSession(data.user, data.token)
-      return data
+      setToken(data.token)
+      return data as { message: string; token: string }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
       throw err
@@ -78,25 +78,31 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // TODO(backend): replace with the real endpoint contract once it's finalized.
+  // NOTE: as of the current backend code, POST /api/register requires an existing valid
+  // token (it has `onRequest: [authenticate]` on the route), which blocks brand-new users
+  // from signing up at all. This is flagged to the backend dev - assuming it gets fixed to
+  // be a public route, since that's the only way self-signup can work.
+  //
+  // The backend also does NOT log the user in automatically after registering - it only
+  // returns { message, user: { id } }, no token. So after a successful signup we send the
+  // person to the login page rather than treating them as logged in.
   async function signup(payload: SignupPayload) {
     loading.value = true
     error.value = null
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/signup`, {
+      const res = await fetch(`${API_BASE_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
 
+      const data = await res.json().catch(() => null)
+
       if (!res.ok) {
-        const body = await res.json().catch(() => null)
-        throw new Error(body?.message ?? 'Could not create your account')
+        throw new Error(data?.message ?? 'Could not create your account')
       }
 
-      const data = (await res.json()) as { user: User; token: string }
-      setSession(data.user, data.token)
-      return data
+      return data as { message: string; user: { id: string } }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
       throw err
@@ -110,7 +116,6 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   return {
-    user,
     token,
     loading,
     error,

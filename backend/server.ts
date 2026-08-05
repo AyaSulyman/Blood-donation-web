@@ -4,8 +4,11 @@ import jwtPlugin from "./plugins/jwt.ts";
 import productRoutes from "./routes/products.route.ts";
 import process from "process";
 import authRoutes from "./routes/auth.route.ts";
-
+import cors from "@fastify/cors";
 const fastify = Fastify({ logger: true });
+await fastify.register(cors, {
+  origin: "http://localhost:5173",
+});
 await fastify.register(dbPlugin);
 await fastify.register(jwtPlugin);
 await fastify.register(productRoutes, { prefix: "/api" });
