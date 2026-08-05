@@ -45,6 +45,11 @@ const router = createRouter({
       component: ContactView,
     },
     {
+      path: '/centers',
+      name: 'centers',
+      component: () => import('@/views/CentersView.vue'),
+    },
+    {
   path: '/dashboard',
   name: 'dashboard',
   component: () => import('@/views/DashboardView.vue')
