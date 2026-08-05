@@ -23,12 +23,12 @@ const router = createRouter({
       name: 'signup',
       component: () => import('@/views/SignupView.vue'),
     },
-    {
-      path: '/about',
-      name: 'about',
-      component: () => import('@/views/AboutView.vue'),
-      component: HomeView,
-    },
+    // {
+    //   path: '/about',
+    //   name: 'about',
+    //   component: () => import('@/views/AboutView.vue'),
+    //   component: HomeView,
+    // },
     {
       path: '/donate',
       name: 'donate',
@@ -43,6 +43,16 @@ const router = createRouter({
       path: '/contact',
       name: 'contact',
       component: ContactView,
+    },
+    {
+  path: '/dashboard',
+  name: 'dashboard',
+  component: () => import('@/views/DashboardView.vue')
+},
+{
+      path: '/recipients',
+      name: 'recipients',
+      component: () => import('@/views/RecipientsView.vue')
     },
   ],
 })
