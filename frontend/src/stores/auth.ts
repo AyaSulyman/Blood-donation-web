@@ -30,13 +30,33 @@ export interface SignupPayload {
 // TODO(backend): move this to an env var (import.meta.env.VITE_API_URL) once there's
 // a deployed URL - right now this assumes the backend is running locally on port 3000.
 const API_BASE_URL = 'http://localhost:3000/api'
+interface JwtPayload {
+  id: string
+  username: string
+}
 
+// NOTE: this only decodes the token's payload to read the username for display purposes
+// (e.g. "Hi, jane_doe"). It does NOT verify the signature - that's fine here since we're
+// not using this for anything security-sensitive, just showing a greeting. Real auth
+// checks still happen server-side via the token itself.
+function decodeJwtPayload(token: string): JwtPayload | null {
+  try {
+    const payloadBase64 = token.split('.')[1]
+    if (!payloadBase64) return null
+
+    const json = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'))
+    return JSON.parse(json) as JwtPayload
+  } catch {
+    return null
+  }
+}
 export const useAuthStore = defineStore('auth', () => {
   // NOTE: the backend's /login response only returns { message, token } - no user object.
   // There's also no profile endpoint yet (checked routes/ - only auth + a leftover
   // "products" route from a tutorial template), so we have nothing to fetch the user's
   // profile from. `user` stays null until that endpoint exists.
   const token = ref<string | null>(localStorage.getItem('lifedrop_token'))
+  const username = ref<string | null>(token.value ? decodeJwtPayload(token.value)?.username ?? null : null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -44,11 +64,13 @@ export const useAuthStore = defineStore('auth', () => {
 
   function setToken(newToken: string) {
     token.value = newToken
+    username.value = decodeJwtPayload(newToken)?.username ?? null
     localStorage.setItem('lifedrop_token', newToken)
   }
 
   function clearSession() {
     token.value = null
+    username.value = null
     localStorage.removeItem('lifedrop_token')
   }
 
@@ -117,6 +139,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     token,
+    username,
     loading,
     error,
     isAuthenticated,

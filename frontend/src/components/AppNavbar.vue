@@ -16,8 +16,13 @@
       </nav>
 
       <div :class="$style.authButtons">
-        <RouterLink to="/login" :class="$style.btnLogin">Log in</RouterLink>
-        <RouterLink to="/signup" :class="$style.btnSignup">Sign up</RouterLink>
+        <template v-if="authStore.isAuthenticated">
+          <button :class="$style.btnLogout" type="button" @click="handleLogout">Log out</button>
+        </template>
+        <template v-else>
+          <RouterLink to="/login" :class="$style.btnLogin">Log in</RouterLink>
+          <RouterLink to="/signup" :class="$style.btnSignup">Sign up</RouterLink>
+        </template>
       </div>
 
       <button
@@ -39,12 +44,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { computed, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
+const router = useRouter()
+const authStore = useAuthStore()
 const menuOpen = ref(false)
+
+const displayName = computed(() => {
+  const name = authStore.username?.trim()
+  return name ? name : 'there'
+})
+
 const closeMenu = () => {
   menuOpen.value = false
+}
+
+const handleLogout = () => {
+  authStore.logout()
+  closeMenu()
+  router.push('/login')
 }
 </script>
 
@@ -167,7 +187,8 @@ $color-border: #f3f4f6;
     gap: 0.75rem;
 
     .btnLogin,
-    .btnSignup {
+    .btnSignup,
+    .btnLogout {
       display: inline-block;
       padding: 0.5rem 1rem;
       font-size: 0.875rem;
@@ -193,6 +214,17 @@ $color-border: #f3f4f6;
     }
 
     .btnSignup {
+      color: #ffffff;
+      background: $color-primary;
+      border: 1px solid $color-primary;
+
+      &:hover {
+        background: $color-primary-hover;
+        border-color: $color-primary-hover;
+      }
+    }
+
+    .btnLogout {
       color: #ffffff;
       background: $color-primary;
       border: 1px solid $color-primary;
