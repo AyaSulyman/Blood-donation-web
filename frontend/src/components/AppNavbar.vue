@@ -9,8 +9,8 @@
       </div>
 
       <nav :class="$style.navLinks">
-        <a href="#">Home</a>
-        <a href="#">About</a>
+        <RouterLink to="/">Home</RouterLink>
+        <RouterLink to="/about">About</RouterLink>
         <a href="#">Donate</a>
         <a href="#">Events</a>
         <a href="#">Centers</a>
