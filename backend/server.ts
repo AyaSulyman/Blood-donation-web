@@ -1,14 +1,23 @@
-import Fastify from "fastify";
-import dbPlugin from "./plugins/db.ts";
-import productRoutes from "./routes/products.route.ts";
-import process from "process";
+// src/server.ts
+import { buildApp } from './app';
+import { connectDB } from './plugins/db';
 
-const fastify = Fastify({ logger: true });
-await fastify.register(dbPlugin);
-await fastify.register(productRoutes, { prefix: "/api" });
-try {
-  await fastify.listen({ port: 3000 });
-} catch (err) {
-  fastify.log.error(err);
-  process.exit(1);
+async function start() {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('Failed to connect to MongoDB:', err);
+    process.exit(1);
+  }
+
+  const app = buildApp();
+
+  try {
+    await app.listen({ port: 3000 });
+  } catch (err) {
+    app.log.error(err);
+    process.exit(1);
+  }
 }
+
+start();

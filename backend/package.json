@@ -6,21 +6,24 @@
   "scripts": {
     "start": "tsx server.ts",
     "dev": "tsx watch server.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "tsx scripts/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@fastify/cors": "^11.3.0",
     "@fastify/type-provider-typebox": "^6.1.0",
     "@sinclair/typebox": "^0.34.52",
-    "fastify": "^5.11.0",
+    "dotenv": "^17.4.2",
+    "fastify": "^5.11.2",
     "fastify-plugin": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
-    "tsx": "^4.23.1",
+    "tsx": "^4.23.5",
     "typescript": "^7.0.2"
   }
 }

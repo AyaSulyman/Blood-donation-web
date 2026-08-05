@@ -1,29 +1,15 @@
-import fp from "fastify-plugin";
-import { FastifyInstance } from "fastify";
+// src/plugins/db.ts
+import mongoose from 'mongoose';
 
-export interface Product {
-  id: number;
-  name: string;
-  price: number;
-}
+export async function connectDB() {
+  const uri = process.env.MONGO_URI ?? 'mongodb+srv://hamzamerie60_db_user:9OBc0EPqwh2i2AZx@cluster0.5u6bgxg.mongodb.net/bloodDonation?appName=Cluster0';
 
-export interface MockDb {
-  products: Product[];
-}
-declare module "fastify" {
-  interface FastifyInstance {
-    db: MockDb;
-  }
-}
-async function dbPlugin(fastify: FastifyInstance) {
-  const mockDb: MockDb = {
-    products: [
-      { id: 1, name: "Wireless Mouse", price: 29.99 },
-      { id: 2, name: "Mechanical Keyboard", price: 89.99 },
-    ],
-  };
+  mongoose.connection.on('connected', () => console.log('MongoDB connected'));
+  mongoose.connection.on('error', (err) => console.error('MongoDB connection error:', err));
 
-  fastify.decorate("db", mockDb);
+  await mongoose.connect(uri, {
+    serverSelectionTimeoutMS: 5000, // fail fast instead of hanging forever
+  });
+  console.log("Connected DB:", mongoose.connection.name);
+console.log("Mongo URI:", process.env.MONGODB_URI);
 }
-
-export default fp(dbPlugin);
