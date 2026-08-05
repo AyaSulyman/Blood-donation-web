@@ -1,12 +1,12 @@
-import { FastifyInstance } from 'fastify';
-import { searchDonorsHandler } from '../controllers/donor.controller';
-import { donorSearchQuerySchema, donorSearchResponseSchema } from '../schemas/donor.schema';
+import { FastifyInstance } from "fastify";
+import { DonorController } from "../controllers/donor.controller.ts";
+
+const donorController = new DonorController();
 
 export default async function donorRoutes(fastify: FastifyInstance) {
-  fastify.get('/donors/search', {
-    schema: {
-      querystring: donorSearchQuerySchema,
-      response: donorSearchResponseSchema
-    }
-  }, searchDonorsHandler);
+  // Matches GET /api/donors/search
+  fastify.get("/", donorController.searchDonors.bind(donorController));
+
+  // Matches GET /api/donors/:id
+  fastify.get("/:id", donorController.getDonorById.bind(donorController));
 }

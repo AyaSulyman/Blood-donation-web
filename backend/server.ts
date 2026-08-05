@@ -1,23 +1,51 @@
-// src/server.ts
-import { buildApp } from './app';
-import { connectDB } from './plugins/db';
+import Fastify from "fastify";
+import cors from "@fastify/cors";
+import dbPlugin from "./plugins/db.ts";
+import jwtPlugin from "./plugins/jwt.ts";
+import productRoutes from "./routes/products.route.ts";
+import authRoutes from "./routes/user.route.ts";
+import centerRoutes from "./routes/centerRoutes.ts";
+import donorRoutes from "./routes/donor.routes.ts"; 
+const fastify = Fastify({
+  logger: true,
+});
+await fastify.register(cors, {
+  origin: true, // Allows http://localhost:5173
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  credentials: true,
+});
+await fastify.register(dbPlugin);
+await fastify.register(jwtPlugin);
 
-async function start() {
-  try {
-    await connectDB();
-  } catch (err) {
-    console.error('Failed to connect to MongoDB:', err);
-    process.exit(1);
-  }
+fastify.get("/", async () => {
+  return {
+    message: "Blood Donation API is running",
+  };
+});
 
-  const app = buildApp();
+await fastify.register(productRoutes, {
+  prefix: "/api/products",
+});
 
-  try {
-    await app.listen({ port: 3000 });
-  } catch (err) {
-    app.log.error(err);
-    process.exit(1);
-  }
+await fastify.register(centerRoutes, {
+  prefix: "/api/centers",
+});
+
+await fastify.register(authRoutes, {
+  prefix: "/api/auth",
+});
+
+
+await fastify.register(donorRoutes, {
+  prefix: "/api/donors",
+});
+
+try {
+  await fastify.listen({
+    port: 3000,
+    host: "0.0.0.0",
+  });
+} catch (error) {
+  fastify.log.error(error);
+  process.exit(1);
 }
-
-start();

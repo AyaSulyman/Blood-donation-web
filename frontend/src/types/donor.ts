@@ -4,7 +4,7 @@ export type UrgencyLevel = 'normal' | 'high' | 'critical';
 export interface Donor {
   id: string;
   name: string;
-  city: string;
+  address: string;
   bloodType: BloodType;
   lastDonated: string;
 }

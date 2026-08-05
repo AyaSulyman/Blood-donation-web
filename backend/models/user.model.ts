@@ -1,6 +1,6 @@
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
-export interface IUser {
+export interface IUser extends Document {
   name: string;
   username: string;
   email: string;
@@ -10,6 +10,7 @@ export interface IUser {
   address: string;
   bloodType: string;
 }
+
 const userSchema = new Schema<IUser>(
   {
     name: {
@@ -44,15 +45,28 @@ const userSchema = new Schema<IUser>(
       trim: true,
     },
     address: {
-  type: String,
-  required: [true, "address is required"],
-  
+      type: String,
+      required: [true, "Address is required"],
       trim: true,
-}
+    },
+    role: {
+      type: String,
+      required: [true, "Role is required"],
+      trim: true,
+    },
+    bloodType: {
+      type: String,
+      required: [true, "Blood type is required"],
+      trim: true,
+    },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-const User = model<IUser>("User", userSchema);
+// This guard is what was missing from both files this replaces — without it,
+// importing this module twice in the same process (e.g. once from the auth
+// chain, once from a script) throws OverwriteModelError and crashes on boot.
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", userSchema);
 
 export default User;

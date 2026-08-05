@@ -1,8 +1,6 @@
-import { FastifyInstance } from 'fastify';
-import donorRoutes from './donor.routes';
+import { FastifyInstance } from "fastify";
+import { donorRoutes } from "./donor.routes.ts";
 
-export default async function registerRoutes(fastify: FastifyInstance) {
-  fastify.register(donorRoutes, { prefix: '/api' });
-  // fastify.register(userRoutes, { prefix: '/api' });
-  // fastify.register(centerRoutes, { prefix: '/api' });
+export async function registerRoutes(fastify: FastifyInstance) {
+  await fastify.register(donorRoutes, { prefix: "/api/donors" });
 }

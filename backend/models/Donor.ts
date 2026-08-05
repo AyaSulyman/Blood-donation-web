@@ -11,8 +11,9 @@ export interface IDonor extends Document {
   userId: Types.ObjectId;
   bloodType: BloodType;
   availability?: IDonorAvailability;
-  createdAt?: Date; // Optional: auto-managed by timestamps
-  updatedAt?: Date; // Optional: auto-managed by timestamps
+  lastdonation?: Date; 
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // 2. Schema
@@ -43,6 +44,7 @@ const DonorSchema = new Schema<IDonor>(
         ],
       },
     },
+    lastdonation: { type: Date }, 
   },
   { 
     timestamps: true 
@@ -50,10 +52,7 @@ const DonorSchema = new Schema<IDonor>(
 );
 
 // Indexes
-// Speeds up filtering donors by blood type
 DonorSchema.index({ bloodType: 1 });
-
-// Compound index for filtering available donors by blood type
 DonorSchema.index({ bloodType: 1, "availability.date": 1 });
 
 // 3. Model

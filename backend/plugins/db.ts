@@ -1,15 +1,24 @@
-// src/plugins/db.ts
-import mongoose from 'mongoose';
+import fp from "fastify-plugin";
+import { FastifyInstance } from "fastify";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-export async function connectDB() {
-  const uri = process.env.MONGO_URI ?? 'mongodb+srv://hamzamerie60_db_user:9OBc0EPqwh2i2AZx@cluster0.5u6bgxg.mongodb.net/bloodDonation?appName=Cluster0';
+dotenv.config();
 
-  mongoose.connection.on('connected', () => console.log('MongoDB connected'));
-  mongoose.connection.on('error', (err) => console.error('MongoDB connection error:', err));
+async function dbPlugin(fastify: FastifyInstance) {
+  const mongoUri = process.env.MONGO_URI;
+  const dbName = process.env.DB_NAME;
 
-  await mongoose.connect(uri, {
-    serverSelectionTimeoutMS: 5000, // fail fast instead of hanging forever
-  });
-  console.log("Connected DB:", mongoose.connection.name);
-console.log("Mongo URI:", process.env.MONGODB_URI);
+  if (!mongoUri) {
+    throw new Error("MONGO_URI environment variable is missing!");
+  }
+
+  try {
+    await mongoose.connect(mongoUri, { dbName: dbName });
+  } catch (error) {
+    fastify.log.error("MongoDB connection failed:");
+    throw error;
+  }
 }
+
+export default fp(dbPlugin);

@@ -412,7 +412,9 @@ $border-color: #e2e8f0;
       transition: background-color 0.2s;
 
       &:hover {
-        background-color: $color-primary-dark;
+        background-color: $color-primary-dark; 
+      
+      
       }
     }
   }
