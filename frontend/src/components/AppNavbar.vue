@@ -8,6 +8,18 @@
         <span :class="$style.brandTitle">LifeDrop</span>
 </RouterLink>
 
+      <nav :class="$style.navLinks">
+        <RouterLink to="/">Home</RouterLink>
+        <RouterLink to="/about">About</RouterLink>
+        <a href="#">Donate</a>
+        <a href="#">Events</a>
+        <a href="#">Centers</a>
+        <a href="#">Contact</a>
+      </nav>
+
+      <div :class="$style.authButtons">
+        <RouterLink to="/login" :class="$style.btnLogin">Log in</RouterLink>
+        <RouterLink to="/signup" :class="$style.btnSignup">Sign up</RouterLink>
 <nav :class="[$style.navLinks, { [$style.navLinksOpen]: menuOpen }]" aria-label="Primary navigation">
   <RouterLink to="/" @click="closeMenu">Home</RouterLink>
   <a href="#" @click.prevent="closeMenu">About</a>
@@ -40,6 +52,7 @@
 </template>
 
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
@@ -167,6 +180,14 @@ $color-border: #f3f4f6;
     align-items: center;
     gap: 0.75rem;
 
+    .btnLogin {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #1f2937;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
     @media (max-width: 560px) {
       display: none;
     }
@@ -177,6 +198,7 @@ $color-border: #f3f4f6;
       font-size: 0.875rem;
       font-weight: 500;
       border-radius: 0.375rem;
+      text-decoration: none;
       cursor: pointer;
       transition: background-color 0.2s ease, border-color 0.2s ease;
     }
@@ -191,6 +213,16 @@ $color-border: #f3f4f6;
     }
 
     .btnSignup {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #ffffff;
+      background: $color-primary;
+      border: none;
+      border-radius: 0.375rem;
+      text-decoration: none;
+      cursor: pointer;
       color: #ffffff;
       background: $color-primary;
       border: 1px solid $color-primary;
