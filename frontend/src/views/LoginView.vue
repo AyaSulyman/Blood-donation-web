@@ -13,65 +13,66 @@
       <AuthAyahPanel />
 
       <main :class="$style.main">
-      <div :class="$style.card">
-        <h1 :class="$style.title">Welcome back</h1>
-        <p :class="$style.subtitle">Log in to manage your donations and appointments.</p>
-        <form :class="$style.form" @submit.prevent="handleSubmit" novalidate>
-          <div v-if="authStore.error" :class="$style.formError" role="alert">
-            {{ authStore.error }}
-          </div>
-
-          <label :class="$style.field">
-            <span :class="$style.fieldLabel">Email</span>
-            <input
-              v-model.trim="form.email"
-              type="email"
-              name="email"
-              autocomplete="email"
-              placeholder="you@example.com"
-              :class="[$style.input, touched.email && errors.email && $style.inputError]"
-              @blur="touched.email = true"
-            />
-            <span v-if="touched.email && errors.email" :class="$style.fieldError">{{ errors.email }}</span>
-          </label>
-
-          <label :class="$style.field">
-            <span :class="$style.fieldLabel">Password</span>
-            <div :class="$style.passwordWrapper">
-              <input
-                v-model="form.password"
-                :type="showPassword ? 'text' : 'password'"
-                name="password"
-                autocomplete="current-password"
-                placeholder="Enter your password"
-                :class="[$style.input, touched.password && errors.password && $style.inputError]"
-                @blur="touched.password = true"
-              />
-              <button type="button" :class="$style.togglePassword" @click="showPassword = !showPassword">
-                {{ showPassword ? 'Hide' : 'Show' }}
-              </button>
+        <div :class="$style.card">
+          <h1 :class="$style.title">Welcome back</h1>
+          <p :class="$style.subtitle">Log in to manage your donations and appointments.</p>
+          
+          <form :class="$style.form" @submit.prevent="handleSubmit" novalidate>
+            <div v-if="authStore.error" :class="$style.formError" role="alert">
+              {{ authStore.error }}
             </div>
-            <span v-if="touched.password && errors.password" :class="$style.fieldError">{{ errors.password }}</span>
-          </label>
 
-          <div :class="$style.rowBetween">
-            <label :class="$style.checkboxLabel">
-              <input v-model="form.remember" type="checkbox" />
-              <span>Remember me</span>
+            <label :class="$style.field">
+              <span :class="$style.fieldLabel">Email</span>
+              <input
+                v-model.trim="form.email"
+                type="email"
+                name="email"
+                autocomplete="email"
+                placeholder="you@example.com"
+                :class="[$style.input, touched.email && errors.email && $style.inputError]"
+                @blur="touched.email = true"
+              />
+              <span v-if="touched.email && errors.email" :class="$style.fieldError">{{ errors.email }}</span>
             </label>
-            <a href="#" :class="$style.link">Forgot password?</a>
-          </div>
 
-          <button type="submit" :class="$style.submitBtn" :disabled="authStore.loading">
-            {{ authStore.loading ? 'Logging in…' : 'Log in' }}
-          </button>
-        </form>
+            <label :class="$style.field">
+              <span :class="$style.fieldLabel">Password</span>
+              <div :class="$style.passwordWrapper">
+                <input
+                  v-model="form.password"
+                  :type="showPassword ? 'text' : 'password'"
+                  name="password"
+                  autocomplete="current-password"
+                  placeholder="Enter your password"
+                  :class="[$style.input, touched.password && errors.password && $style.inputError]"
+                  @blur="touched.password = true"
+                />
+                <button type="button" :class="$style.togglePassword" @click="showPassword = !showPassword">
+                  {{ showPassword ? 'Hide' : 'Show' }}
+                </button>
+              </div>
+              <span v-if="touched.password && errors.password" :class="$style.fieldError">{{ errors.password }}</span>
+            </label>
 
-        <p :class="$style.switchText">
-          Don't have an account?
-          <RouterLink to="/signup" :class="$style.link">Sign up</RouterLink>
-       </p>
-      </div>
+            <div :class="$style.rowBetween">
+              <label :class="$style.checkboxLabel">
+                <input v-model="form.remember" type="checkbox" />
+                <span>Remember me</span>
+              </label>
+              <a href="#" :class="$style.link">Forgot password?</a>
+            </div>
+
+            <button type="submit" :class="$style.submitBtn" :disabled="authStore.loading">
+              {{ authStore.loading ? 'Logging in…' : 'Log in' }}
+            </button>
+          </form>
+
+          <p :class="$style.switchText">
+            Don't have an account?
+            <RouterLink to="/signup" :class="$style.link">Sign up</RouterLink>
+          </p>
+        </div>
       </main>
     </div>
   </div>
@@ -125,9 +126,12 @@ async function handleSubmit() {
 
   try {
     await authStore.login({ email: form.email, password: form.password })
-    router.push('/')
+    
+    // Check if a redirect path exists (e.g., if redirected from an auth guard)
+    const redirectPath = (router.currentRoute.value.query.redirect as string) || '/dashboard'
+    router.push(redirectPath)
   } catch {
-    // authStore.error already holds the message; nothing else to do here.
+    // authStore.error already holds the message
   }
 }
 </script>
