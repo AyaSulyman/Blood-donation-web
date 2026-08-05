@@ -45,14 +45,14 @@ const router = createRouter({
       component: ContactView,
     },
     {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: () => import('@/views/DashboardView.vue'),
-    },
-    {
+  path: '/dashboard',
+  name: 'dashboard',
+  component: () => import('@/views/DashboardView.vue')
+},
+{
       path: '/recipients',
       name: 'recipients',
-      component: () => import('@/views/RecipientsView.vue'),
+      component: () => import('@/views/RecipientsView.vue')
     },
   ],
 })

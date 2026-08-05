@@ -3,6 +3,7 @@ import cors from "@fastify/cors";
 import dbPlugin from "./plugins/db.ts";
 import jwtPlugin from "./plugins/jwt.ts";
 import productRoutes from "./routes/products.route.ts";
+
 import authRoutes from "./routes/user.route.ts";
 import centerRoutes from "./routes/centerRoutes.ts";
 import donorRoutes from "./routes/donor.routes.ts"; 
@@ -14,6 +15,7 @@ await fastify.register(cors, {
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   credentials: true,
 });
+
 await fastify.register(dbPlugin);
 await fastify.register(jwtPlugin);
 

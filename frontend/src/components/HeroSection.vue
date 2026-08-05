@@ -13,7 +13,7 @@
         </p>
         
         <div :class="$style.heroActions">
-          <button :class="$style.btnPrimary">Donate now</button>
+         <router-link to="/recipients" :class="$style.btnPrimary">Donate now</router-link>
           <button :class="$style.btnSecondary">Learn more</button>
         </div>
       </div>
