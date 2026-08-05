@@ -4,7 +4,7 @@ import type {
   FastifyRequest,
 } from "fastify";
 
-import DonationCenter from "../models/DonationCenter";
+import DonationCenter from "../models/Center";
 
 interface CenterParams {
   id: string;

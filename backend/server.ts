@@ -1,12 +1,19 @@
 import Fastify from "fastify";
+import cors from "@fastify/cors";
 import dbPlugin from "./plugins/db.ts";
 import jwtPlugin from "./plugins/jwt.ts";
 import productRoutes from "./routes/products.route.ts";
-import authRoutes from "./routes/auth.route.ts";
-import centerRoutes from "./routes/centerRoutes.ts";
 
+import authRoutes from "./routes/user.route.ts";
+import centerRoutes from "./routes/centerRoutes.ts";
+import donorRoutes from "./routes/donor.routes.ts"; 
 const fastify = Fastify({
   logger: true,
+});
+await fastify.register(cors, {
+  origin: true, // Allows http://localhost:5173
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  credentials: true,
 });
 
 await fastify.register(dbPlugin);
@@ -28,6 +35,11 @@ await fastify.register(centerRoutes, {
 
 await fastify.register(authRoutes, {
   prefix: "/api/auth",
+});
+
+
+await fastify.register(donorRoutes, {
+  prefix: "/api/donors",
 });
 
 try {

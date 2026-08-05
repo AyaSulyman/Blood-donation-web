@@ -43,10 +43,11 @@
                 </svg>
                 <input 
                   id="cityName"
-                  type="text" 
                   v-model="cityQuery" 
+                  type="text" 
                   placeholder="e.g. Beirut" 
-                  :class="$style.textInput" 
+                  :class="$style.textInput"
+                  @keyup.enter="handleSearch"
                 />
               </div>
             </div>
@@ -55,34 +56,50 @@
               <label for="urgency">Urgency</label>
               <div :class="$style.selectWrapper">
                 <select id="urgency" v-model="selectedUrgency" :class="$style.selectInput">
-                  <option value="Normal">Normal</option>
-                  <option value="High">High Priority</option>
-                  <option value="Critical">Critical</option>
+                  <option value="normal">Normal</option>
+                  <option value="high">High Priority</option>
+                  <option value="critical">Critical</option>
                 </select>
               </div>
             </div>
 
             <div :class="$style.buttonGroup">
-              <button :class="$style.btnSearch" aria-label="Search Donors">
+              <button
+                :class="$style.btnSearch"
+                aria-label="Search Donors"
+                :disabled="isLoading"
+                @click="handleSearch"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" :class="$style.btnIcon">
                   <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
                 </svg>
-                <span>Search</span>
+                <span>{{ isLoading ? 'Searching...' : 'Search' }}</span>
               </button>
             </div>
           </div>
         </div>
+
+        <!-- Error message -->
+        <p v-if="errorMessage" :class="$style.errorText">{{ errorMessage }}</p>
 
         <!-- Donors Section Title -->
         <div :class="$style.gridHeader">
           <h2>Available Donors ({{ donors.length }})</h2>
         </div>
 
+        <!-- Loading state -->
+        <p v-if="isLoading" :class="$style.loadingText">Loading donors...</p>
+
+        <!-- Empty state -->
+        <p v-else-if="donors.length === 0" :class="$style.loadingText">
+          No donors found. Try adjusting your filters.
+        </p>
+
         <!-- Donors List Grid -->
-        <div :class="$style.donorsGrid">
-          <div 
-            v-for="(donor, index) in donors" 
-            :key="index" 
+        <div v-else :class="$style.donorsGrid">
+          <div
+            v-for="donor in donors"
+            :key="(donor as any)._id || donor.id"
             :class="$style.donorCard"
           >
             <div :class="$style.cardHeader">
@@ -92,30 +109,35 @@
               <span :class="$style.statusDot" title="Available donor"></span>
             </div>
 
-            <h3 :class="$style.donorName">{{ donor.name }}</h3>
+            <h3 :class="$style.donorName">
+              {{ getDonorName(donor) }}
+            </h3>
             
             <div :class="$style.donorMeta">
               <p :class="$style.metaRow">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.307-.066l.003-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 003.03 2.198l.018.009.006.003zM10 11.25a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z" clip-rule="evenodd" />
                 </svg>
-                <span>{{ donor.city }}</span>
+                <span>{{ getDonorCity(donor) }}</span>
               </p>
               <p :class="$style.metaRow">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z" clip-rule="evenodd" />
                 </svg>
-                <span>Last donated: {{ donor.lastDonated }}</span>
+                <span>Last donated: {{ formatLastDonated(donor) }}</span>
               </p>
             </div>
-
-           <router-link :to="`/donor/${donor.id}`" :class="$style.btnContact">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-    <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
-    <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
-  </svg>
-  <span>Contact Donor</span>
-</router-link>
+            
+            <router-link 
+              :to="`/donors/${(donor as any)._id || donor.id}`" 
+              :class="$style.btnContact"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
+                <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
+              </svg>
+              <span>Contact Donor</span>
+            </router-link>
           </div>
         </div>
       </div>
@@ -126,47 +148,99 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import AppNavbar from '@/components/AppNavbar.vue';
 import AppFooter from '@/components/AppFooter.vue';
+import { fetchDonors } from '@/services/donor.service';
+import type { Donor, BloodType, UrgencyLevel, DonorSearchParams } from '@/types/donor';
 
-interface Donor {
-  id: number;
-  name: string;
-  city: string;
-  lastDonated: string;
-  bloodType: string;
+const donors = ref<Donor[]>([]);
+const isLoading = ref(false);
+const errorMessage = ref('');
+
+const selectedBloodType = ref<BloodType | 'Any'>('Any');
+const cityQuery = ref('');
+const selectedUrgency = ref<UrgencyLevel>('normal');
+
+function getDonorName(donor: Donor | any): string {
+  if (typeof donor.userId === 'object' && donor.userId?.name) {
+    return donor.userId.name;
+  }
+  return donor.name || 'Anonymous Donor';
 }
 
-const donors = ref<Donor[]>([
-  {
-    id: 1,
-    name: 'Rami Nasser',
-    city: 'Beirut',
-    lastDonated: '3 months ago',
-    bloodType: 'O+'
-  },
-  {
-    id: 2,
-    name: 'Layla Fares',
-    city: 'Sidon',
-    lastDonated: '5 months ago',
-    bloodType: 'O+'
-  },
-  {
-    id: 3,
-    name: 'Karim Saade',
-    city: 'Tyre',
-    lastDonated: '1 month ago',
-    bloodType: 'O+'
+function getDonorCity(donor: Donor | any): string {
+  if (!donor || !donor.userId) return 'Location unspecified';
+  const u = donor.userId;
+
+  if (typeof u === 'object' && u !== null) {
+    if (typeof u.address === 'string' && u.address.trim() !== '') {
+      return u.address;
+    }
+    if (u.address && typeof u.address === 'object' && u.address.city) {
+      return u.address.city;
+    }
   }
-]);
 
-const selectedBloodType = ref('Any');
-const cityQuery = ref('Beirut');
-const selectedUrgency = ref('Normal');
+  if (typeof donor.address === 'string' && donor.address.trim() !== '') {
+    return donor.address;
+  }
 
+  return 'Location unspecified';
+}
 
+function formatLastDonated(donor: Donor | any): string {
+  // Check lowercase lastdonation (from DB) as well as camelCase variants
+  let rawDate = donor.lastdonation || donor.lastDonation || donor.lastDonationDate || donor.lastDonated;
+  
+  if (!rawDate) return 'Never';
+
+  // If the database stored string literal quotes like '""2026-08-03...""', clean them up:
+  if (typeof rawDate === 'string') {
+    rawDate = rawDate.replace(/"/g, '').trim();
+  }
+
+  const date = new Date(rawDate);
+  if (isNaN(date.getTime())) return 'Never';
+
+  const now = new Date();
+  
+  // Calculate difference based on midnight start of today for clean day matching
+  const dateMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const diffInMs = nowMidnight.getTime() - dateMidnight.getTime();
+  const diffInDays = Math.round(diffInMs / (1000 * 60 * 60 * 24));
+
+  if (diffInDays < 0) return 'Today';
+  if (diffInDays === 0) return 'Today';
+  if (diffInDays === 1) return 'Yesterday';
+  if (diffInDays < 30) return `${diffInDays} days ago`;
+  if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
+
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+async function handleSearch() {
+  isLoading.value = true;
+  errorMessage.value = '';
+  try {
+    const searchParams = {
+      bloodType: selectedBloodType.value === 'Any' ? undefined : (selectedBloodType.value as BloodType),
+      urgency: selectedUrgency.value,
+      address: cityQuery.value.trim() || undefined,
+    } as DonorSearchParams & { address?: string };
+
+    donors.value = await fetchDonors(searchParams);
+  } catch (err) {
+    errorMessage.value = 'Could not load donors. Please try again.';
+    console.error(err);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+onMounted(handleSearch);
 </script>
 
 <style module lang="scss">
@@ -196,7 +270,6 @@ $border-color: #e2e8f0;
   margin: 0 auto;
 }
 
-/* Header Section */
 .headerSection {
   margin-bottom: 2rem;
 
@@ -231,14 +304,13 @@ $border-color: #e2e8f0;
   }
 }
 
-/* Search Filter Card */
 .searchCard {
   background: #ffffff;
   border-radius: 1rem;
   padding: 1.5rem;
   border: 1px solid $border-color;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.02);
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 
   .filterGrid {
     display: grid;
@@ -330,16 +402,37 @@ $border-color: #e2e8f0;
         height: 1.25rem;
       }
 
-      &:hover {
+      &:hover:not(:disabled) {
         background-color: $color-primary-dark;
         box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
       }
 
-      &:active {
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      &:active:not(:disabled) {
         transform: translateY(1px);
       }
     }
   }
+}
+
+.errorText {
+  color: $color-primary-dark;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 0.625rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  margin-bottom: 1.5rem;
+}
+
+.loadingText {
+  color: $color-text-muted;
+  font-size: 0.9375rem;
+  padding: 1rem 0;
 }
 
 .gridHeader {
@@ -353,7 +446,6 @@ $border-color: #e2e8f0;
   }
 }
 
-/* Donors List Grid */
 .donorsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
