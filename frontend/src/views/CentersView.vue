@@ -13,21 +13,12 @@
         </header>
 
         <div :class="$style.centersGrid">
-          <article
-            v-for="center in centers"
-            :key="center.id"
-            :class="$style.centerCard"
-          >
+          <article v-for="center in centers" :key="center._id" :class="$style.centerCard">
             <div :class="$style.imagePlaceholder" aria-hidden="true">
               <div :class="$style.iconCircle">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M12 21s7-4.35 7-11A7 7 0 1 0 5 10c0 6.65 7 11 7 11Z"
-                    stroke="currentColor"
-                    stroke-width="1.7"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
+                  <path d="M12 21s7-4.35 7-11A7 7 0 1 0 5 10c0 6.65 7 11 7 11Z" stroke="currentColor" stroke-width="1.7"
+                    stroke-linecap="round" stroke-linejoin="round" />
                   <circle cx="12" cy="10" r="2.3" stroke="currentColor" stroke-width="1.7" />
                 </svg>
               </div>
@@ -38,23 +29,20 @@
                 <h2 :class="$style.centerName">{{ center.name }}</h2>
                 <p :class="$style.address">
                   <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path
-                      fill-rule="evenodd"
+                    <path fill-rule="evenodd"
                       d="M9.69 18.933 10 19l.31-.067C10.583 18.815 17 15.91 17 9A7 7 0 1 0 3 9c0 6.91 6.417 9.815 6.69 9.933ZM10 11.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"
-                      clip-rule="evenodd"
-                    />
+                      clip-rule="evenodd" />
                   </svg>
                   <span>{{ center.address }}</span>
                 </p>
               </div>
 
-              <button type="button" :class="$style.directionsButton">
+              <button type="button" :class="$style.directionsButton"
+                @click="openDirections(center.latitude, center.longitude)">
                 <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path
-                    fill-rule="evenodd"
+                  <path fill-rule="evenodd"
                     d="M10.293 2.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1 0 1.414l-6 6a1 1 0 0 1-1.414-1.414L14.586 10H5a1 1 0 1 1 0-2h9.586l-4.293-4.293a1 1 0 0 1 0-1.414Z"
-                    clip-rule="evenodd"
-                  />
+                    clip-rule="evenodd" />
                 </svg>
                 <span>Get directions</span>
               </button>
@@ -69,32 +57,33 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
+import {
+  fetchCenters,
+  type DonationCenter,
+} from "@/services/center.service";
 import AppFooter from '@/components/AppFooter.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 
-interface DonationCenter {
-  id: number
-  name: string
-  address: string
+
+
+
+const openDirections = (latitude: number, longitude: number) => {
+  window.open(
+    `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`,
+    "_blank"
+  )
 }
 
-const centers: DonationCenter[] = [
-  {
-    id: 1,
-    name: 'Red Cross Center',
-    address: '123 Main St, Beirut',
-  },
-  {
-    id: 2,
-    name: 'AUBMC Clinic',
-    address: '456 Elm St, Beirut',
-  },
-  {
-    id: 3,
-    name: 'Sidon Health Center',
-    address: '78 Oak Ave, Sidon',
-  },
-]
+const centers = ref<DonationCenter[]>([])
+
+onMounted(async () => {
+  try {
+    centers.value = await fetchCenters()
+  } catch (error) {
+    console.error("Failed to fetch centers:", error)
+  }
+})
 </script>
 
 <style module lang="scss">
