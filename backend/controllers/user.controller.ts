@@ -1,6 +1,8 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import bcrypt from "bcrypt";
 import User from "../models/user.model";
+import BloodDonation from "../models/BloodDonation";
+import BloodRecipients from "../models/recipient.model";
 
 interface RegisterBody {
   name: string;
@@ -16,7 +18,6 @@ interface LoginBody {
   username: string;
   password: string;
 }
-
 export async function registerHandler(
   request: FastifyRequest<{ Body: RegisterBody }>,
   reply: FastifyReply,
@@ -72,5 +73,44 @@ export async function loginHandler(
   return reply.code(201).send({
     message: "User logged in successfully",
     token,
+  });
+}
+export async function getUserHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const { username } = request.user as { username: string };
+  const existingUser = await User.findOne({ username });
+  if (!existingUser) {
+    return reply.code(404).send({ message: "Login First" });
+  }
+  return reply.code(200).send({
+    existingUser,
+  });
+}
+export async function getUserDonationListHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const { id } = request.user as { id: string };
+  const existingUser = await BloodDonation.find({ user: id }).populate("center", "name address city phone");
+  if (!existingUser) {
+    return reply.code(404).send({ message: "Login First" });
+  }
+  return reply.code(200).send({
+    donationList: existingUser,
+  });
+}
+export async function getUserReceiptListHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const { id } = request.user as { id: string };
+  const userReceiptList = await BloodRecipients.find({ user: id }).populate("user", "name phone");
+  if (!userReceiptList) {
+    return reply.code(404).send({ message: "Login First" });
+  }
+  return reply.code(200).send({
+    receiptList: userReceiptList,
   });
 }

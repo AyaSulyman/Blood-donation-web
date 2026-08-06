@@ -2,6 +2,9 @@
   <section :class="$style.hero">
     <div :class="$style.heroInner">
       <div :class="$style.heroContent">
+        <div v-if="authStore.isAuthenticated" :class="$style.welcomeMessage">
+          Welcome back, {{ displayName }} — you’re logged in and ready to help save lives.
+        </div>
         <span :class="$style.badge">Trusted by 8 hospitals nationwide</span>
         
         <h1 :class="$style.heroTitle">
@@ -77,6 +80,15 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+
+const displayName = computed(() => {
+  const name = authStore.username?.trim()
+  return name ? name : 'there'
+})
 </script>
 
 <style module lang="scss">
@@ -105,15 +117,30 @@ $color-primary-hover: #a61e1e;
   .heroContent {
     max-width: 32rem;
 
+    .welcomeMessage {
+      display: inline-block;
+      max-width: 100%;
+      padding: 0.6rem 0.9rem;
+      margin-bottom: 0.7rem;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(201, 42, 42, 0.18);
+      color: #7f1d1d;
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
     .badge {
       display: inline-block;
       padding: 0.25rem 0.75rem;
-      background: rgba(255, 255, 255, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: rgba(240, 253, 244, 0.9);
+      border: 1px solid rgba(34, 197, 94, 0.25);
       border-radius: 9999px;
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 600;
       margin-bottom: 1.5rem;
+      color: #166534;
     }
 
     .heroTitle {

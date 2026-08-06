@@ -8,18 +8,23 @@
         <span :class="$style.brandTitle">LifeDrop</span>
       </RouterLink>
 
-      <nav :class="[$style.navLinks, { [$style.navLinksOpen]: menuOpen }]" aria-label="Primary navigation">
+      <nav :class="[$style.navLinks, menuOpen && $style.navLinksOpen]" aria-label="Primary navigation">
         <RouterLink to="/" @click="closeMenu">Home</RouterLink>
         <RouterLink to="/about" @click="closeMenu">About</RouterLink>
         <RouterLink to="/donate" @click="closeMenu">Donate</RouterLink>
         <RouterLink to="/centers" @click="closeMenu">Centers</RouterLink>
-      
         <RouterLink to="/contact" @click="closeMenu">Contact</RouterLink>
       </nav>
 
       <div :class="$style.authButtons">
-        <RouterLink to="/login" :class="$style.btnLogin">Log in</RouterLink>
-        <RouterLink to="/signup" :class="$style.btnSignup">Sign up</RouterLink>
+        <template v-if="authStore.isAuthenticated">
+          <span :class="$style.welcomeText">Welcome, {{ displayName }}</span>
+          <button :class="$style.btnLogout" type="button" @click="handleLogout">Log out</button>
+        </template>
+        <template v-else>
+          <RouterLink to="/login" :class="$style.btnLogin">Log in</RouterLink>
+          <RouterLink to="/signup" :class="$style.btnSignup">Sign up</RouterLink>
+        </template>
       </div>
 
       <button
@@ -41,13 +46,27 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
+const router = useRouter()
+const authStore = useAuthStore()
 const menuOpen = ref(false)
+
+const displayName = computed(() => {
+  const name = authStore.username?.trim()
+  return name ? name : 'there'
+})
 
 const closeMenu = () => {
   menuOpen.value = false
+}
+
+const handleLogout = () => {
+  authStore.logout()
+  closeMenu()
+  router.push('/login')
 }
 </script>
 
@@ -182,6 +201,16 @@ $color-border: #f3f4f6;
   flex-shrink: 0;
 }
 
+.welcomeText {
+  font-size: 0.875rem;
+  color: #4b5563;
+  white-space: nowrap;
+  
+  @media (max-width: 560px) {
+    display: none;
+  }
+}
+
 .btnLogin {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
@@ -205,6 +234,25 @@ $color-border: #f3f4f6;
 }
 
 .btnSignup {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ffffff;
+  background: $color-primary;
+  border: 1px solid $color-primary;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: $color-primary-hover;
+    border-color: $color-primary-hover;
+  }
+}
+
+.btnLogout {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;

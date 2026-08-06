@@ -116,7 +116,7 @@
         <div v-else :class="$style.donorsGrid">
           <div
             v-for="donor in donors"
-            :key="(donor as any)._id || donor.id"
+            :key="getDonorId(donor)"
             :class="$style.donorCard"
           >
             <div :class="$style.cardHeader">
@@ -153,10 +153,10 @@
               </p>
             </div>
 
-            <router-link
-              :to="`/donors/${(donor as any)._id || donor.id}`"
-              :class="$style.btnContact"
-            >
+        <router-link
+  :to="`/donors/${getDonorId(donor)}`"
+  :class="$style.btnContact"
+>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z"
@@ -256,7 +256,15 @@ function formatLastDonated(donor: Donor | any): string {
 
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
-
+function getDonorId(donor: Donor | any): string {
+  return (
+    donor.id ||
+    donor._id ||
+    donor.user?.id ||
+    donor.user?._id ||
+    ''
+  )
+}
 async function handleSearch() {
   isLoading.value = true
   errorMessage.value = ''

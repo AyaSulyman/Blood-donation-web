@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue'
 import DonateView from '@/views/DonateView.vue'
 import DonorDetailsView from '@/views/DonorDetailsView.vue'
 import ContactView from '@/views/ContactView.vue'
+import AboutView from '@/views/AboutView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,7 +12,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('@/views/HomeView.vue'),
+      component: HomeView,
     },
     {
       path: '/login',
@@ -26,8 +27,7 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      component: () => import('@/views/AboutView.vue'),
-      
+      component: AboutView,
     },
     {
       path: '/donate',
@@ -35,8 +35,8 @@ const router = createRouter({
       component: DonateView,
     },
     {
-      path: '/donor/:id',
-      name: 'donor-details',
+      path: '/donors/:id',
+      name: 'DonorDetails',
       component: DonorDetailsView,
     },
     {
@@ -50,14 +50,14 @@ const router = createRouter({
       component: () => import('@/views/CentersView.vue'),
     },
     {
-  path: '/dashboard',
-  name: 'dashboard',
-  component: () => import('@/views/DashboardView.vue')
-},
-{
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('@/views/DashboardView.vue'),
+    },
+    {
       path: '/recipients',
       name: 'recipients',
-      component: () => import('@/views/RecipientsView.vue')
+      component: () => import('@/views/RecipientsView.vue'),
     },
   ],
 })

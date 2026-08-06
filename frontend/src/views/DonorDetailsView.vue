@@ -4,137 +4,358 @@
 
     <main :class="$style.mainContent">
       <div :class="$style.container">
-        <!-- Back Navigation -->
+
         <router-link to="/donate" :class="$style.btnBack">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
+            <path fill-rule="evenodd"
+              d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
+              clip-rule="evenodd" />
           </svg>
           <span>Back to Donors</span>
         </router-link>
 
-        <div :class="$style.profileGrid">
+
+        <div v-if="loading">
+          Loading donor...
+        </div>
+
+
+        <div v-else-if="error">
+          {{ error }}
+        </div>
+
+
+        <div v-else-if="donor" :class="$style.profileGrid">
+
           <!-- Main Profile Card -->
           <div :class="$style.mainCard">
+
             <div :class="$style.profileHeader">
+
               <div :class="$style.bloodBadge">
                 {{ donor.bloodType }}
               </div>
+
+
               <div :class="$style.headerInfo">
+
                 <div :class="$style.nameRow">
-                  <h1 :class="$style.donorName">{{ donor.name }}</h1>
-                  <span :class="$style.badgeVerified">Verified Donor</span>
+                  <h1 :class="$style.donorName">
+                    {{ donor.name }}
+                  </h1>
+
+                  <span :class="$style.badgeVerified">
+                    Verified Donor
+                  </span>
                 </div>
-                <p :class="$style.location">📍 {{ donor.city }}, Lebanon</p>
+
+
+                <p :class="$style.location">
+                  📍 {{ donor.city }}, Lebanon
+                </p>
+
               </div>
+
             </div>
+
 
             <hr :class="$style.divider" />
 
-            <!-- Stats Bar -->
+
+            <!-- Stats -->
             <div :class="$style.statsBar">
+
               <div :class="$style.statItem">
-                <span :class="$style.statLabel">Total Donations</span>
-                <span :class="$style.statValue">{{ donor.totalDonations }} times</span>
+                <span :class="$style.statLabel">
+                  Blood Type
+                </span>
+
+                <span :class="$style.statValue">
+                  {{ donor.bloodType }}
+                </span>
               </div>
+
+
               <div :class="$style.statItem">
-                <span :class="$style.statLabel">Last Donation</span>
-                <span :class="$style.statValue">{{ donor.lastDonated }}</span>
+                <span :class="$style.statLabel">
+                  Last Donation
+                </span>
+
+                <span :class="$style.statValue">
+                  {{ donor.lastDonated }}
+                </span>
               </div>
+
+
               <div :class="$style.statItem">
-                <span :class="$style.statLabel">Availability</span>
-                <span :class="[$style.statValue, $style.textSuccess]">Ready to donate</span>
+                <span :class="$style.statLabel">
+                  Availability
+                </span>
+
+                <span :class="[$style.statValue, $style.textSuccess]">
+                  Ready to donate
+                </span>
               </div>
+
             </div>
 
-            <div :class="$style.section">
-              <h3>About the Donor</h3>
-              <p :class="$style.bioText">{{ donor.bio }}</p>
-            </div>
+
 
             <div :class="$style.section">
-              <h3>Direct Contact Options</h3>
+
+              <h3>
+                About the Donor
+              </h3>
+
+
+              <p :class="$style.bioText">
+
+                {{ donor.name }} is a verified blood donor
+                from {{ donor.city }}.
+                The donor's last donation was
+                {{ donor.lastDonated }}.
+
+              </p>
+
+            </div>
+
+
+
+            <div :class="$style.section">
+
+              <h3>
+                Donation Request
+              </h3>
+
+
               <div :class="$style.contactActions">
-                <a :href="`tel:${donor.phone}`" :class="[$style.actionBtn, $style.btnCall]">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                  </svg>
-                  <span>Call {{ donor.phone }}</span>
-                </a>
 
-                <a :href="`mailto:${donor.email}?subject=Urgent Blood Donation Request`" :class="[$style.actionBtn, $style.btnEmail]">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
-                    <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
+                <button
+                  @click="submitRequest"
+                  :class="[$style.actionBtn, $style.btnCall]"
+                >
+
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                       viewBox="0 0 20 20"
+                       fill="currentColor">
+
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+
                   </svg>
-                  <span>Send Email</span>
-                </a>
+
+
+                  Send Request
+
+                </button>
+
               </div>
+
             </div>
+
+
           </div>
 
-          <!-- Direct Request Form Side Card -->
+
+
+
+          <!-- Request Form -->
+
           <div :class="$style.sideCard">
-            <h3>Send Request</h3>
-            <p :class="$style.sideText">Notify this donor directly with your hospital details and urgency status.</p>
 
-            <form @submit.prevent="submitRequest" :class="$style.requestForm">
+            <h3>
+              Send Request
+            </h3>
+
+
+            <p :class="$style.sideText">
+
+              Notify this donor directly with your hospital details and urgency status.
+
+            </p>
+
+
+
+            <form
+              @submit.prevent="submitRequest"
+              :class="$style.requestForm"
+            >
+
+
               <div :class="$style.formGroup">
-                <label>Hospital / Medical Center</label>
-                <input type="text" placeholder="e.g. Hotel Dieu de France" required :class="$style.formInput" />
+
+                <label>
+                  Hospital / Medical Center
+                </label>
+
+
+                <input
+                  type="text"
+                  placeholder="e.g. Hotel Dieu de France"
+                  required
+                  :class="$style.formInput"
+                />
+
               </div>
 
+
+
               <div :class="$style.formGroup">
-                <label>Urgency Level</label>
+
+                <label>
+                  Urgency Level
+                </label>
+
+
                 <select :class="$style.formInput">
-                  <option>Normal (Within 24-48 hrs)</option>
-                  <option>High (Within 12 hrs)</option>
-                  <option>Critical (Immediate)</option>
+
+                  <option>
+                    Normal (Within 24-48 hrs)
+                  </option>
+
+                  <option>
+                    High (Within 12 hrs)
+                  </option>
+
+                  <option>
+                    Critical (Immediate)
+                  </option>
+
                 </select>
+
               </div>
+
+
+
 
               <div :class="$style.formGroup">
-                <label>Message / Details</label>
-                <textarea rows="3" placeholder="Provide room number or contact person..." :class="$style.formTextarea"></textarea>
+
+                <label>
+                  Message / Details
+                </label>
+
+
+                <textarea
+                  rows="3"
+                  placeholder="Provide room number or contact person..."
+                  :class="$style.formTextarea"
+                ></textarea>
+
+
               </div>
 
-              <button type="submit" :class="$style.btnSubmit">
+
+
+
+              <button
+                type="submit"
+                :class="$style.btnSubmit"
+              >
+
                 Send Direct Emergency Request
+
               </button>
+
+
+
             </form>
+
           </div>
+
+
         </div>
+
+
       </div>
     </main>
 
+
     <AppFooter />
+
   </div>
 </template>
 
+
+
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRoute } from 'vue-router';
-import AppNavbar from '@/components/AppNavbar.vue';
-import AppFooter from '@/components/AppFooter.vue';
+
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+
+import { getDonorById } from "@/services/donor";
+
+import AppNavbar from "@/components/AppNavbar.vue";
+import AppFooter from "@/components/AppFooter.vue";
+
+
+interface Donor {
+
+  id: string;
+
+  name: string;
+
+  city: string;
+
+  bloodType: string;
+
+  lastDonated: string;
+
+}
+
+
 
 const route = useRoute();
-const donorId = route.params.id;
 
-// Mock data
-const donor = ref({
-  id: donorId,
-  name: 'Rami Nasser',
-  city: 'Beirut',
-  bloodType: 'O+',
-  lastDonated: '3 months ago',
-  totalDonations: 8,
-  phone: '+961 03 123 456',
-  email: 'rami.nasser@example.com',
-  bio: 'Regular blood donor registered with national health networks. Available for urgent blood drives in Beirut and surrounding areas.'
+
+const donor = ref<Donor | null>(null);
+
+const loading = ref(true);
+
+const error = ref("");
+
+
+
+const donorId = route.params.id as string;
+
+
+
+onMounted(async () => {
+
+  try {
+
+    donor.value = await getDonorById(donorId);
+
+    console.log("Donor:", donor.value);
+
+
+  } catch (err) {
+
+    console.error(err);
+
+    error.value = "Failed to load donor.";
+
+  } finally {
+
+    loading.value = false;
+
+  }
+
 });
 
+
+
+
 const submitRequest = () => {
-  alert(`Emergency request dispatched to ${donor.value.name}!`);
+
+  if (!donor.value)
+    return;
+
+
+  alert(
+    `Emergency request sent to ${donor.value.name}!`
+  );
+
 };
+
 </script>
 
 <style module lang="scss">

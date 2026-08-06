@@ -1,90 +1,126 @@
 <template>
   <aside :class="$style.panel">
-    <div :class="$style.illustration">
-      <svg width="96" height="118" viewBox="0 0 72 88" fill="none" aria-hidden="true">
+    <RouterLink to="/" :class="$style.brand">
+      <span :class="$style.brandRing" aria-hidden="true"></span>
+      <span :class="$style.brandWord">LifeDrop</span>
+    </RouterLink>
+
+    <div :class="$style.quoteCard">
+      <svg :class="$style.dropIcon" viewBox="0 0 72 88" fill="none" aria-hidden="true">
         <path
           d="M36 4C36 4 8 40 8 60C8 75.464 20.536 88 36 88C51.464 88 64 75.464 64 60C64 40 36 4 36 4Z"
-          fill="#c92a2a"
-          fill-opacity="0.92"
+          fill="#c33a2c"
         />
-        <ellipse cx="26" cy="58" rx="7" ry="11" fill="#c92a2a" opacity="0.16" />
       </svg>
+      <p :class="$style.quoteText">
+        Your blood is a gift<br />
+        that no factory can produce.<br />
+        Share it, save a life.
+      </p>
     </div>
 
-    <div :class="$style.verse">
-      <p dir="rtl" lang="ar" :class="$style.ayahArabic">
-       
-    Your blood is a gift <br>
-    that no factory can produce<br>share it,
-     save a life.
-        
-      </p>
-     
-    
-    </div>
+    <div :class="$style.divider"></div>
+
+    <p :class="$style.stat">
+      <em>1</em> donation can save up to <em>3</em> lives
+    </p>
+
+    <span :class="$style.footerBrand">LifeDrop &middot; Donor network</span>
   </aside>
 </template>
 
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
 </script>
 
 <style module lang="scss">
 .panel {
-  flex: 0 0 60%;
+  flex: 0 0 44%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 2.5rem;
-  background: linear-gradient(180deg, #f9c9bc 0%, #f0a894 100%);
-  padding: 3rem 2rem;
+  padding: 3rem 3rem 2.5rem;
+  background: linear-gradient(135deg, #c81e2c 0%, #7a1013 55%, #4a0b0e 100%);
 
   @media (max-width: 900px) {
     display: none;
   }
 }
 
-.illustration {
-  display: flex;
+.brand {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  align-self: flex-start;
 }
 
-.verse {
+.brandRing {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 5px solid #c81e2c;
+  box-sizing: border-box;
+}
+
+.brandWord {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 1.375rem;
+  color: #ffffff;
+}
+
+.quoteCard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  max-width: 22rem;
+  gap: 1.5rem;
+  padding: 3rem 2rem;
+  background: #f4c6b8;
+  border-radius: 0.75rem;
 }
 
-.ayahArabic {
-  font-family: 'Traditional Arabic', 'Amiri', 'Segoe UI', serif;
-  font-size: 1.5rem;
-  line-height: 2.1;
-  color: #4a1b0c;
-  text-align: center;
+.dropIcon {
+  width: 3rem;
+  height: 3.7rem;
+}
+
+.quoteText {
   margin: 0;
-}
-
-.ayahMark {
-  color: #993c1d;
-  margin: 0 0.15rem;
-}
-
-.ayahTranslation {
-  font-size: 0.9375rem;
+  font-family: Georgia, 'Times New Roman', serif;
   font-style: italic;
-  color: #712b13;
+  font-size: 1.25rem;
+  line-height: 1.6;
   text-align: center;
-  line-height: 1.7;
-  margin: 0;
+  color: #5a1f16;
 }
 
-.ayahCitation {
-  font-size: 0.75rem;
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.stat {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.85);
+
+  em {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    color: #f4a58c;
+  }
+}
+
+.footerBrand {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.6875rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #993c1d;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
 }
 </style>
