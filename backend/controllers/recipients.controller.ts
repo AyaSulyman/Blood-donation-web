@@ -22,7 +22,7 @@ export async function createBloodRecipientHandler(
   const newRecipient = await BloodRecipients.create({
     ...request.body,
   });
-  const createdRecipient = { id: newRecipient._id };
+  const createdRecipient = { newRecipient: newRecipient };
   return reply.code(201).send({
     message: "Recipient created successfully",
     user: createdRecipient,
