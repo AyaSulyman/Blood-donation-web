@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import bcrypt from "bcrypt";
 import User from "../models/user.model";
 import BloodDonation from "../models/bloodDonation";
+import BloodRecipients from "../models/recipient.model";
 
 interface RegisterBody {
   name: string;
@@ -98,5 +99,18 @@ export async function getUserDonationListHandler(
   }
   return reply.code(200).send({
     donationList: existingUser,
+  });
+}
+export async function getUserReceiptListHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const { id } = request.user as { id: string };
+  const userReceiptList = await BloodRecipients.find({ user: id }).populate("user", "name phone");
+  if (!userReceiptList) {
+    return reply.code(404).send({ message: "Login First" });
+  }
+  return reply.code(200).send({
+    receiptList: userReceiptList,
   });
 }
