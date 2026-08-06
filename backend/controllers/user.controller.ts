@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import bcrypt from "bcrypt";
 import User from "../models/user.model";
-import BloodDonation from "../models/bloodDonation";
+import BloodDonation from "../models/BloodDonation";
 import BloodRecipients from "../models/recipient.model";
 
 interface RegisterBody {
