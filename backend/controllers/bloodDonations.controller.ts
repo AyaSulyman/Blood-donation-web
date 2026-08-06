@@ -4,8 +4,7 @@ import BloodDonation from "../models/BloodDonation";
 
 interface BloodDonationBody {
   user: string;
- 
-  bloodType: string;
+   bloodType: string;
   bloodUnits: string;
 }
 
