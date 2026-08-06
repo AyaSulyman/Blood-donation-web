@@ -5,8 +5,8 @@ const donorService = new DonorService();
 
 interface DonorQuery {
   bloodType?: string;
-  address?: string; // 👈 Destructure address properly
-  city?: string;    // 👈 Keep city as optional fallback
+  address?: string; 
+  city?: string;    
   urgency?: string;
 }
 

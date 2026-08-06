@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { createBloodDonationHandler } from "../controllers/bloodDonations.controller";
-import { recipientSchema } from "../schemas/bloodDonations.schema";
+import {BloodDonationsSchema } from "../schemas/bloodDonations.schema";
 
 export default async function bloodDonationsRoutes(fastify: FastifyInstance) {
   fastify.post(
