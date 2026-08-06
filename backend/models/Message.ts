@@ -1,40 +1,46 @@
-import mongoose, { Schema, Document, Model, Types } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
-// 1. Interface
 export interface IMessage extends Document {
-  userId: Types.ObjectId;
+  fullName: string;
+  email: string;
+  subject: string;
   message: string;
-  createdAt?: Date; // Optional: auto-managed by timestamps
-  updatedAt?: Date; // Optional: auto-managed by timestamps
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-// 2. Schema
 const MessageSchema = new Schema<IMessage>(
   {
-    userId: { 
-      type: Schema.Types.ObjectId, 
-      ref: "User", 
-      required: [true, "User ID is required"] 
-    },
-    message: { 
-      type: String, 
-      required: [true, "Message content cannot be empty"], 
+    fullName: {
+      type: String,
+      required: [true, "Full name is required"],
       trim: true,
-      minlength: [1, "Message must contain at least 1 character"],
-      maxlength: [2000, "Message cannot exceed 2000 characters"] // Adjust limit as needed
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      trim: true,
+      lowercase: true,
+    },
+    subject: {
+      type: String,
+      required: [true, "Subject is required"],
+      trim: true,
+    },
+    message: {
+      type: String,
+      required: [true, "Message is required"],
+      trim: true,
+      maxlength: [1000, "Message cannot exceed 1000 characters"],
     },
   },
-  { 
-    timestamps: true 
+  {
+    timestamps: true,
   }
 );
 
-// Indexes
-// Speeds up fetching messages sent by a specific user sorted by time
-MessageSchema.index({ userId: 1, createdAt: -1 });
-
-// 3. Model
 const Message: Model<IMessage> =
-  mongoose.models.Message || mongoose.model<IMessage>("Message", MessageSchema);
+  mongoose.models.Message ||
+  mongoose.model<IMessage>("Message", MessageSchema);
 
 export default Message;
