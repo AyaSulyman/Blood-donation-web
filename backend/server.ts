@@ -44,12 +44,11 @@ await fastify.register(donorRoutes, {
   prefix: "/api/donors",
 });
 
-await fastify.register(donorRoutes, {
-  prefix: "/api/donors/:id",
-});
-
-await fastify.register(bloodDonationsRoutes, {
-  prefix: "/api/bloodDonations",
+// await fastify.register(donorRoutes, {
+//   prefix: "/api/donors/:id",
+// });
+fastify.register(bloodDonationsRoutes, {
+  prefix: "/api/blood-donations",
 });
 await fastify.register(recipientsRoutes, {
   prefix: "/api/recipients",
