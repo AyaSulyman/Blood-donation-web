@@ -2,9 +2,7 @@ import mongoose, { Schema, model } from "mongoose";
 
 export interface IBloodDonation extends mongoose.Document {
   user: mongoose.Types.ObjectId;
-  patientName: string;
-  bloodType: string;
-  bloodUnits: string;
+  center: mongoose.Types.ObjectId;
 }
 const bloodDonationSchema = new Schema<IBloodDonation>(
   {
@@ -12,21 +10,17 @@ const bloodDonationSchema = new Schema<IBloodDonation>(
       type: Schema.Types.ObjectId,
       required: [true, "ID is required"],
     },
-   
-    bloodType: {
-      type: String,
-      required: [true, "Blood type is required"],
-      trim: true,
-    },
-    bloodUnits: {
-      type: String,
-      required: [true, "Blood units is required"],
-      trim: true,
+    center: {
+      type: Schema.Types.ObjectId,
+      required: [true, "Center ID is required"],
     },
   },
   { timestamps: true },
 );
 
-const BloodDonation = model<IBloodDonation>("BloodDonation", bloodDonationSchema);
+const BloodDonation = model<IBloodDonation>(
+  "BloodDonation",
+  bloodDonationSchema,
+);
 
 export default BloodDonation;

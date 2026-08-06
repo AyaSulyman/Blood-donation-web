@@ -4,7 +4,7 @@ import type {
   FastifyRequest,
 } from "fastify";
 
-import DonationCenter from "../models/Center";
+import Center from "../models/Center";
 
 interface CenterParams {
   id: string;
@@ -33,7 +33,7 @@ export async function getAllCenters(
   reply: FastifyReply,
 ) {
   try {
-    const centers = await DonationCenter.find().sort({
+    const centers = await Center.find().sort({
       createdAt: -1,
     });
 
@@ -68,7 +68,7 @@ export async function getCenterById(
       });
     }
 
-    const center = await DonationCenter.findById(id);
+    const center = await Center.findById(id);
 
     if (!center) {
       return reply.status(404).send({
@@ -98,7 +98,7 @@ export async function createCenter(
   reply: FastifyReply,
 ) {
   try {
-    const center = await DonationCenter.create(
+    const center = await Center.create(
       request.body,
     );
 
@@ -134,7 +134,7 @@ export async function updateCenter(
       });
     }
 
-    const center = await DonationCenter.findByIdAndUpdate(
+    const center = await Center.findByIdAndUpdate(
       id,
       request.body,
       {
@@ -182,7 +182,7 @@ export async function deleteCenter(
     }
 
     const center =
-      await DonationCenter.findByIdAndDelete(id);
+      await Center.findByIdAndDelete(id);
 
     if (!center) {
       return reply.status(404).send({

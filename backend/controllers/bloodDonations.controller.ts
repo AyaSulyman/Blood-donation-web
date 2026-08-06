@@ -1,11 +1,10 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import User from "../models/auth.model";
+import User from "../models/user.model";
 import BloodDonation from "../models/BloodDonation";
 
 interface BloodDonationBody {
   user: string;
- 
-  bloodType: string;
+   bloodType: string;
   bloodUnits: string;
 }
 

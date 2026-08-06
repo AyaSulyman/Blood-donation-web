@@ -4,20 +4,19 @@
 
     <main :class="$style.mainContent">
       <div :class="$style.container">
-        
         <!-- Header Title Section -->
         <header :class="$style.headerSection">
           <span :class="$style.subBadge">Emergency & Regular Requests</span>
-          <h1 :class="$style.pageTitle">Find a Donor Near You</h1>
+          <h1 :class="$style.pageTitle">Top Donors In Our system</h1>
           <p :class="$style.pageSubtitle">
-            Connect directly with verified blood donors in your area for immediate or scheduled needs.
+            Recognizing our most dedicated blood donors whose lifesaving contributions make the
+            biggest impact in our community. needs.
           </p>
         </header>
 
         <!-- Search Bar Card -->
         <div :class="$style.searchCard">
           <div :class="$style.filterGrid">
-            
             <div :class="$style.inputGroup">
               <label for="bloodType">Blood type</label>
               <div :class="$style.selectWrapper">
@@ -38,14 +37,23 @@
             <div :class="$style.inputGroup">
               <label for="cityName">City / Region</label>
               <div :class="$style.inputWithIcon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" :class="$style.fieldIcon">
-                  <path fill-rule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.307-.066l.003-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 003.03 2.198l.018.009.006.003zM10 11.25a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z" clip-rule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  :class="$style.fieldIcon"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.307-.066l.003-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 003.03 2.198l.018.009.006.003zM10 11.25a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
-                <input 
+                <input
                   id="cityName"
-                  v-model="cityQuery" 
-                  type="text" 
-                  placeholder="e.g. Beirut" 
+                  v-model="cityQuery"
+                  type="text"
+                  placeholder="e.g. Beirut"
                   :class="$style.textInput"
                   @keyup.enter="handleSearch"
                 />
@@ -70,8 +78,17 @@
                 :disabled="isLoading"
                 @click="handleSearch"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" :class="$style.btnIcon">
-                  <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  :class="$style.btnIcon"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
                 <span>{{ isLoading ? 'Searching...' : 'Search' }}</span>
               </button>
@@ -84,7 +101,7 @@
 
         <!-- Donors Section Title -->
         <div :class="$style.gridHeader">
-          <h2>Available Donors ({{ donors.length }})</h2>
+          <h2>Top Donors ({{ donors.length }})</h2>
         </div>
 
         <!-- Loading state -->
@@ -104,7 +121,7 @@
           >
             <div :class="$style.cardHeader">
               <div :class="$style.bloodBadge">
-                <span>{{ donor.bloodType }}</span>
+                <span>{{ getDonorBloodType(donor) }}</span>
               </div>
               <span :class="$style.statusDot" title="Available donor"></span>
             </div>
@@ -112,29 +129,41 @@
             <h3 :class="$style.donorName">
               {{ getDonorName(donor) }}
             </h3>
-            
+
             <div :class="$style.donorMeta">
               <p :class="$style.metaRow">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.307-.066l.003-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 003.03 2.198l.018.009.006.003zM10 11.25a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z" clip-rule="evenodd" />
+                  <path
+                    fill-rule="evenodd"
+                    d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.307-.066l.003-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 003.03 2.198l.018.009.006.003zM10 11.25a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
                 <span>{{ getDonorCity(donor) }}</span>
               </p>
               <p :class="$style.metaRow">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z" clip-rule="evenodd" />
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
                 <span>Last donated: {{ formatLastDonated(donor) }}</span>
               </p>
             </div>
-            
-            <router-link 
-              :to="`/donors/${(donor as any)._id || donor.id}`" 
+
+            <router-link
+              :to="`/donors/${(donor as any)._id || donor.id}`"
               :class="$style.btnContact"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
-                <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
+                <path
+                  d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z"
+                />
+                <path
+                  d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z"
+                />
               </svg>
               <span>Contact Donor</span>
             </router-link>
@@ -148,99 +177,107 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import AppNavbar from '@/components/AppNavbar.vue';
-import AppFooter from '@/components/AppFooter.vue';
-import { fetchDonors } from '@/services/donor.service';
-import type { Donor, BloodType, UrgencyLevel, DonorSearchParams } from '@/types/donor';
+import { ref, onMounted } from 'vue'
+import AppNavbar from '@/components/AppNavbar.vue'
+import AppFooter from '@/components/AppFooter.vue'
+import { fetchDonors } from '@/services/donor.service'
+import type { Donor, BloodType, UrgencyLevel, DonorSearchParams } from '@/types/donor'
 
-const donors = ref<Donor[]>([]);
-const isLoading = ref(false);
-const errorMessage = ref('');
+const donors = ref<Donor[]>([])
+const isLoading = ref(false)
+const errorMessage = ref('')
 
-const selectedBloodType = ref<BloodType | 'Any'>('Any');
-const cityQuery = ref('');
-const selectedUrgency = ref<UrgencyLevel>('normal');
+const selectedBloodType = ref<BloodType | 'Any'>('Any')
+const cityQuery = ref('')
+const selectedUrgency = ref<UrgencyLevel>('normal')
 
 function getDonorName(donor: Donor | any): string {
-  if (typeof donor.userId === 'object' && donor.userId?.name) {
-    return donor.userId.name;
+  if (typeof donor.user === 'object' && donor.user?.name) {
+    return donor.user.name
   }
-  return donor.name || 'Anonymous Donor';
+  return donor.name || 'Anonymous Donor'
+}
+function getDonorBloodType(donor: Donor | any): string {
+  if (typeof donor.user === 'object' && donor.user?.bloodType) {
+    return donor.user.bloodType
+  }
+  return donor.bloodType || 'Unknown'
 }
 
 function getDonorCity(donor: Donor | any): string {
-  if (!donor || !donor.userId) return 'Location unspecified';
-  const u = donor.userId;
+  if (!donor || !donor.user) return 'Location unspecified'
+  const u = donor.user
 
   if (typeof u === 'object' && u !== null) {
     if (typeof u.address === 'string' && u.address.trim() !== '') {
-      return u.address;
+      return u.address
     }
     if (u.address && typeof u.address === 'object' && u.address.city) {
-      return u.address.city;
+      return u.address.city
     }
   }
 
   if (typeof donor.address === 'string' && donor.address.trim() !== '') {
-    return donor.address;
+    return donor.address
   }
 
-  return 'Location unspecified';
+  return 'Location unspecified'
 }
 
 function formatLastDonated(donor: Donor | any): string {
   // Check lowercase lastdonation (from DB) as well as camelCase variants
-  let rawDate = donor.lastdonation || donor.lastDonation || donor.lastDonationDate || donor.lastDonated;
-  
-  if (!rawDate) return 'Never';
+  let rawDate =
+    donor.lastdonation || donor.lastDonation || donor.lastDonationDate || donor.lastDonated
+
+  if (!rawDate) return 'Never'
 
   // If the database stored string literal quotes like '""2026-08-03...""', clean them up:
   if (typeof rawDate === 'string') {
-    rawDate = rawDate.replace(/"/g, '').trim();
+    rawDate = rawDate.replace(/"/g, '').trim()
   }
 
-  const date = new Date(rawDate);
-  if (isNaN(date.getTime())) return 'Never';
+  const date = new Date(rawDate)
+  if (isNaN(date.getTime())) return 'Never'
 
-  const now = new Date();
-  
+  const now = new Date()
+
   // Calculate difference based on midnight start of today for clean day matching
-  const dateMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dateMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
-  const diffInMs = nowMidnight.getTime() - dateMidnight.getTime();
-  const diffInDays = Math.round(diffInMs / (1000 * 60 * 60 * 24));
+  const diffInMs = nowMidnight.getTime() - dateMidnight.getTime()
+  const diffInDays = Math.round(diffInMs / (1000 * 60 * 60 * 24))
 
-  if (diffInDays < 0) return 'Today';
-  if (diffInDays === 0) return 'Today';
-  if (diffInDays === 1) return 'Yesterday';
-  if (diffInDays < 30) return `${diffInDays} days ago`;
-  if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
+  if (diffInDays < 0) return 'Today'
+  if (diffInDays === 0) return 'Today'
+  if (diffInDays === 1) return 'Yesterday'
+  if (diffInDays < 30) return `${diffInDays} days ago`
+  if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`
 
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 async function handleSearch() {
-  isLoading.value = true;
-  errorMessage.value = '';
+  isLoading.value = true
+  errorMessage.value = ''
   try {
     const searchParams = {
-      bloodType: selectedBloodType.value === 'Any' ? undefined : (selectedBloodType.value as BloodType),
+      bloodType:
+        selectedBloodType.value === 'Any' ? undefined : (selectedBloodType.value as BloodType),
       urgency: selectedUrgency.value,
       address: cityQuery.value.trim() || undefined,
-    } as DonorSearchParams & { address?: string };
+    } as DonorSearchParams & { address?: string }
 
-    donors.value = await fetchDonors(searchParams);
+    donors.value = await fetchDonors(searchParams)
   } catch (err) {
-    errorMessage.value = 'Could not load donors. Please try again.';
-    console.error(err);
+    errorMessage.value = 'Could not load donors. Please try again.'
+    console.error(err)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
 
-onMounted(handleSearch);
+onMounted(handleSearch)
 </script>
 
 <style module lang="scss">
@@ -256,7 +293,16 @@ $border-color: #e2e8f0;
   display: flex;
   flex-direction: column;
   background-color: #f8fafc;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
 }
 
 .mainContent {
@@ -309,7 +355,9 @@ $border-color: #e2e8f0;
   border-radius: 1rem;
   padding: 1.5rem;
   border: 1px solid $border-color;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.02);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.04),
+    0 4px 6px -4px rgba(0, 0, 0, 0.02);
   margin-bottom: 1.5rem;
 
   .filterGrid {
@@ -361,7 +409,8 @@ $border-color: #e2e8f0;
       }
     }
 
-    .selectInput, .textInput {
+    .selectInput,
+    .textInput {
       width: 100%;
       height: 2.875rem;
       padding: 0 1rem;
