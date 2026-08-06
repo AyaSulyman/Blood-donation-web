@@ -1,10 +1,10 @@
-// routes/auth.route.ts
 import { FastifyInstance } from "fastify";
-import { loginHandler, registerHandler } from "../controllers/user.controller";
-import { registerSchema, loginSchema } from "../schemas/user.schema";
+import { getUserHandler } from "../controllers/user.controller";
 
-export default async function authRoutes(fastify: FastifyInstance) {
- fastify.post("/register", { schema: registerSchema }, registerHandler);
-  fastify.post("/login", { schema: loginSchema }, loginHandler);
+export default async function userRoutes(fastify: FastifyInstance) {
+  fastify.get(
+    "/",
+    { onRequest: [(fastify as any).authenticate] },
+    getUserHandler,
+  );
 }
-

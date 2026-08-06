@@ -16,7 +16,14 @@ interface LoginBody {
   username: string;
   password: string;
 }
-
+interface UserBody {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  bloodType: string;
+  username: string;
+}
 export async function registerHandler(
   request: FastifyRequest<{ Body: RegisterBody }>,
   reply: FastifyReply,
@@ -72,5 +79,18 @@ export async function loginHandler(
   return reply.code(201).send({
     message: "User logged in successfully",
     token,
+  });
+}
+export async function getUserHandler(
+  request: FastifyRequest<{ Body: UserBody }>,
+  reply: FastifyReply,
+) {
+  const { username } = request.user as { username: string };
+  const existingUser = await User.findOne({ username });
+  if (!existingUser) {
+    return reply.code(404).send({ message: "Login First" });
+  }
+  return reply.code(200).send({
+    existingUser,
   });
 }
