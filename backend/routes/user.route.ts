@@ -4,6 +4,7 @@ import { loginHandler, registerHandler } from "../controllers/user.controller";
 import { registerSchema, loginSchema } from "../schemas/user.schema";
 
 export default async function authRoutes(fastify: FastifyInstance) {
-  fastify.post("/register", { onRequest: [(fastify as any).authenticate], schema: registerSchema }, registerHandler);
+ fastify.post("/register", { schema: registerSchema }, registerHandler);
   fastify.post("/login", { schema: loginSchema }, loginHandler);
 }
+

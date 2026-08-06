@@ -4,10 +4,11 @@ import dbPlugin from "./plugins/db.ts";
 import jwtPlugin from "./plugins/jwt.ts";
 import productRoutes from "./routes/products.route.ts";
 import messageRoutes from "./routes/message.route";
-
+import recipientsRoutes from "./routes/recipients.route.ts";
 import authRoutes from "./routes/user.route.ts";
 import centerRoutes from "./routes/centerRoutes.ts";
 import donorRoutes from "./routes/donor.routes.ts"; 
+import bloodDonationsRoutes from "./routes/bloodDonations.route.ts";
 const fastify = Fastify({
   logger: true,
 });
@@ -43,6 +44,16 @@ await fastify.register(donorRoutes, {
   prefix: "/api/donors",
 });
 
+await fastify.register(donorRoutes, {
+  prefix: "/api/donors/:id",
+});
+
+await fastify.register(bloodDonationsRoutes, {
+  prefix: "/api/bloodDonations",
+});
+await fastify.register(recipientsRoutes, {
+  prefix: "/api/recipients",
+});
 await fastify.register(messageRoutes, {
   prefix: "/api/messages",
 });
