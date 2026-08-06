@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import bcrypt from "bcrypt";
 import User from "../models/user.model";
+import BloodDonation from "../models/bloodDonation";
 
 interface RegisterBody {
   name: string;
@@ -15,14 +16,6 @@ interface RegisterBody {
 interface LoginBody {
   username: string;
   password: string;
-}
-interface UserBody {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  bloodType: string;
-  username: string;
 }
 export async function registerHandler(
   request: FastifyRequest<{ Body: RegisterBody }>,
@@ -82,7 +75,7 @@ export async function loginHandler(
   });
 }
 export async function getUserHandler(
-  request: FastifyRequest<{ Body: UserBody }>,
+  request: FastifyRequest,
   reply: FastifyReply,
 ) {
   const { username } = request.user as { username: string };
@@ -92,5 +85,18 @@ export async function getUserHandler(
   }
   return reply.code(200).send({
     existingUser,
+  });
+}
+export async function getUserDonationListHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const { id } = request.user as { id: string };
+  const existingUser = await BloodDonation.find({ user: id }).populate("center", "name address city phone");
+  if (!existingUser) {
+    return reply.code(404).send({ message: "Login First" });
+  }
+  return reply.code(200).send({
+    donationList: existingUser,
   });
 }
