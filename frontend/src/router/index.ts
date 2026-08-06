@@ -34,11 +34,11 @@ const router = createRouter({
       name: 'donate',
       component: DonateView,
     },
-    {
-      path: '/donor/:id',
-      name: 'donor-details',
-      component: DonorDetailsView,
-    },
+   {
+  path: "/donors/:id",
+  name: "DonorDetails",
+  component: () => import("@/views/DonorDetailsView.vue"),
+},
     {
       path: '/contact',
       name: 'contact',
@@ -54,6 +54,7 @@ const router = createRouter({
   name: 'dashboard',
   component: () => import('@/views/DashboardView.vue')
 },
+
 {
       path: '/recipients',
       name: 'recipients',
