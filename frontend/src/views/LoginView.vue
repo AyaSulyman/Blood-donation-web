@@ -1,20 +1,35 @@
 <template>
-  <div :class="$style.page">
-    <header :class="$style.topbar">
-      <RouterLink to="/" :class="$style.brand">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" :class="$style.brandIcon">
-          <path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75 0 7.312 9.75 11.25 9.75 11.25s9.75-3.938 9.75-11.25c0-5.385-4.365-9.75-9.75-9.75z" />
+  <div :class="$style.split">
+    <AuthAyahPanel />
+
+    <div :class="$style.dropBadge" aria-hidden="true">
+      <span :class="$style.dropBadgeHalo"></span>
+      <svg :class="$style.dropBadgeShape" viewBox="0 0 72 88" fill="none">
+        <path
+          d="M36 4C36 4 8 40 8 60C8 75.464 20.536 88 36 88C51.464 88 64 75.464 64 60C64 40 36 4 36 4Z"
+          fill="#1a1a1a"
+        />
+      </svg>
+      <svg :class="$style.dropBadgePulse" viewBox="0 0 32 16" fill="none">
+        <path d="M0 8h6l3-6 4 12 3-9 2 3h14" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+
+    <main :class="$style.main">
+      <span :class="$style.secureBadge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="5" y="11" width="14" height="9" rx="2" />
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" />
         </svg>
-        <span :class="$style.brandTitle">LifeDrop</span>
-      </RouterLink>
-    </header>
+        Secure access
+      </span>
 
-    <div :class="$style.split">
-      <AuthAyahPanel />
-
-      <main :class="$style.main">
       <div :class="$style.card">
-        <h1 :class="$style.title">Welcome back</h1>
+        <span :class="$style.eyebrow">Donor sign in</span>
+        <h1 :class="$style.title">
+          Welcome<br />
+          <em>back.</em>
+        </h1>
         <p :class="$style.subtitle">Log in to manage your donations and appointments.</p>
 
         <form :class="$style.form" @submit.prevent="handleSubmit" novalidate>
@@ -28,21 +43,31 @@
 
           <label :class="$style.field">
             <span :class="$style.fieldLabel">Username</span>
-            <input
-              v-model.trim="form.username"
-              type="text"
-              name="username"
-              autocomplete="username"
-              placeholder="your_username"
-              :class="[$style.input, touched.username && errors.username && $style.inputError]"
-              @blur="touched.username = true"
-            />
+            <div :class="$style.inputWrapper">
+              <svg :class="$style.inputIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+              </svg>
+              <input
+                v-model.trim="form.username"
+                type="text"
+                name="username"
+                autocomplete="username"
+                placeholder="your_username"
+                :class="[$style.input, touched.username && errors.username && $style.inputError]"
+                @blur="touched.username = true"
+              />
+            </div>
             <span v-if="touched.username && errors.username" :class="$style.fieldError">{{ errors.username }}</span>
           </label>
 
           <label :class="$style.field">
             <span :class="$style.fieldLabel">Password</span>
-            <div :class="$style.passwordWrapper">
+            <div :class="$style.inputWrapper">
+              <svg :class="$style.inputIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="11" width="14" height="9" rx="2" />
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              </svg>
               <input
                 v-model="form.password"
                 :type="showPassword ? 'text' : 'password'"
@@ -52,8 +77,14 @@
                 :class="[$style.input, touched.password && errors.password && $style.inputError]"
                 @blur="touched.password = true"
               />
-              <button type="button" :class="$style.togglePassword" @click="showPassword = !showPassword">
-                {{ showPassword ? 'Hide' : 'Show' }}
+              <button type="button" :class="$style.togglePassword" :aria-label="showPassword ? 'Hide password' : 'Show password'" @click="showPassword = !showPassword">
+                <svg v-if="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7-10.5-7-10.5-7z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.24 4.24M9.88 5.09A10.9 10.9 0 0 1 12 5c6.5 0 10.5 7 10.5 7a13.2 13.2 0 0 1-3.24 3.87M6.6 6.6C3.5 8.6 1.5 12 1.5 12s2.06 3.6 5.42 5.6" />
+                </svg>
               </button>
             </div>
             <span v-if="touched.password && errors.password" :class="$style.fieldError">{{ errors.password }}</span>
@@ -69,16 +100,17 @@
 
           <button type="submit" :class="$style.submitBtn" :disabled="authStore.loading">
             {{ authStore.loading ? 'Logging in…' : 'Log in' }}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
           </button>
         </form>
 
         <p :class="$style.switchText">
-          Don't have an account?
-          <RouterLink to="/signup" :class="$style.link">Sign up</RouterLink>
+          Don't have an account? <RouterLink to="/signup" :class="$style.link">Sign up</RouterLink>
         </p>
       </div>
-      </main>
-    </div>
+    </main>
   </div>
 </template>
 
@@ -139,76 +171,120 @@ async function handleSubmit() {
 </script>
 
 <style module lang="scss">
-$color-primary: #c92a2a;
-$color-primary-hover: #a61e1e;
-$color-border: #e5e7eb;
-$color-error: #dc2626;
-
-.page {
+.split {
+  position: relative;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  background: #ffffff;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.split {
-  flex: 1;
+.dropBadge {
+  position: absolute;
+  top: 44%;
+  left: 50.4%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
   display: flex;
-}
-
-.topbar {
-  padding: 1.5rem;
-}
-
-.brand {
-  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  text-decoration: none;
+  justify-content: center;
 
-  .brandIcon {
-    width: 1.5rem;
-    height: 1.5rem;
-    color: $color-primary;
+  @media (max-width: 900px) {
+    display: none;
   }
+}
 
-  .brandTitle {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #111827;
-  }
+.dropBadgeHalo {
+  position: absolute;
+  width: 9rem;
+  height: 9rem;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.dropBadgeShape {
+  position: relative;
+  width: 3.25rem;
+  height: 4rem;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.25));
+}
+
+.dropBadgePulse {
+  position: absolute;
+  width: 1.5rem;
+  height: 0.75rem;
+  top: 46%;
 }
 
 .main {
   flex: 1;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
+  background: #f6f1ea;
+  overflow: hidden;
+}
+
+.secureBadge {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  background: #ffffff;
+  border: 1px solid #e6ddd0;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a2c1c;
+
+  svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
 }
 
 .card {
+  position: relative;
+  z-index: 2;
   width: 100%;
   max-width: 24rem;
-  background: #ffffff;
-  border: 1px solid $color-border;
-  border-radius: 0.75rem;
-  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
-  padding: 2rem;
+}
+
+.eyebrow {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c81e2c;
+  margin-bottom: 0.75rem;
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #111827;
-  margin-bottom: 0.375rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  font-size: 2.75rem;
+  line-height: 1.1;
+  color: #1a1a1a;
+  margin: 0 0 1rem;
+
+  em {
+    font-style: italic;
+    color: #c81e2c;
+  }
 }
 
 .subtitle {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-bottom: 1.75rem;
+  font-size: 0.9375rem;
+  color: #6b6459;
+  line-height: 1.5;
+  margin: 0 0 2rem;
 }
 
 .form {
@@ -222,7 +298,7 @@ $color-error: #dc2626;
   background: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 0.5rem;
-  color: $color-error;
+  color: #dc2626;
   font-size: 0.8125rem;
 }
 
@@ -238,61 +314,73 @@ $color-error: #dc2626;
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: 0.5rem;
 }
 
 .fieldLabel {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: #374151;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8a8478;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 0.9rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #8a8478;
+  pointer-events: none;
 }
 
 .input {
-  padding: 0.625rem 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.6rem;
   font-size: 0.9375rem;
-  border: 1px solid $color-border;
+  color: #1a1a1a;
+  background: #e9edfb;
+  border: 1px solid transparent;
   border-radius: 0.5rem;
   outline: none;
-  width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
   &:focus {
-    border-color: $color-primary;
-    box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.1);
+    border-color: #c81e2c;
+    box-shadow: 0 0 0 3px rgba(200, 30, 44, 0.12);
   }
 }
 
 .inputError {
-  border-color: $color-error;
-
-  &:focus {
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-  }
+  border-color: #dc2626;
 }
 
 .fieldError {
   font-size: 0.75rem;
-  color: $color-error;
+  color: #dc2626;
 }
 
-.passwordWrapper {
-  position: relative;
+.togglePassword {
+  position: absolute;
+  right: 0.75rem;
   display: flex;
   align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  color: #8a8478;
+  cursor: pointer;
 
-  .input {
-    padding-right: 3.5rem;
-  }
-
-  .togglePassword {
-    position: absolute;
-    right: 0.5rem;
-    background: none;
-    border: none;
-    color: $color-primary;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
   }
 }
 
@@ -307,16 +395,16 @@ $color-error: #dc2626;
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: #4b5563;
+  color: #6b6459;
   cursor: pointer;
 
   input {
-    accent-color: $color-primary;
+    accent-color: #c81e2c;
   }
 }
 
 .link {
-  color: $color-primary;
+  color: #c81e2c;
   font-weight: 600;
   text-decoration: none;
 
@@ -326,21 +414,30 @@ $color-error: #dc2626;
 }
 
 .submitBtn {
-  padding: 0.75rem 1rem;
-  background: $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  background: #1a1a1a;
   color: #ffffff;
   font-weight: 600;
   font-size: 0.9375rem;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 9999px;
   cursor: pointer;
 
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
   &:hover:not(:disabled) {
-    background: $color-primary-hover;
+    background: #000000;
   }
 
   &:disabled {
-    opacity: 0.65;
+    opacity: 0.6;
     cursor: not-allowed;
   }
 }
@@ -349,6 +446,6 @@ $color-error: #dc2626;
   margin-top: 1.5rem;
   text-align: center;
   font-size: 0.8125rem;
-  color: #6b7280;
+  color: #6b6459;
 }
 </style>
