@@ -153,9 +153,11 @@
 </template>
 
 <script setup lang="ts">
+
 import { reactive, ref } from 'vue'
 import AppFooter from '@/components/AppFooter.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
+import { createMessage } from '@/services/message.service'
 
 type FieldName = 'fullName' | 'email' | 'subject' | 'message'
 
@@ -223,17 +225,29 @@ const validateField = (field: FieldName) => {
   return true
 }
 
-const submitForm = () => {
+const submitForm = async () => {
   submitted.value = false
   const valid = (Object.keys(form) as FieldName[]).map((field) => validateField(field)).every(Boolean)
 
   if (!valid) return
+  try {
+    await createMessage({
+      fullName: form.fullName,
+      email: form.email,
+      subject: form.subject,
+      message: form.message,
+    })
 
-  submitted.value = true
-  form.fullName = ''
-  form.email = ''
-  form.subject = ''
-  form.message = ''
+    submitted.value = true
+
+    form.fullName = ''
+    form.email = ''
+    form.subject = ''
+    form.message = ''
+  } catch (error) {
+    console.error(error)
+    alert('Failed to send message. Please try again.')
+  }
 }
 </script>
 

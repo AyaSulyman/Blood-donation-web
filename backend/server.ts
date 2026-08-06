@@ -3,6 +3,7 @@ import cors from "@fastify/cors";
 import dbPlugin from "./plugins/db.ts";
 import jwtPlugin from "./plugins/jwt.ts";
 import productRoutes from "./routes/products.route.ts";
+import messageRoutes from "./routes/message.route";
 
 import authRoutes from "./routes/user.route.ts";
 import centerRoutes from "./routes/centerRoutes.ts";
@@ -40,6 +41,10 @@ await fastify.register(authRoutes, {
 
 await fastify.register(donorRoutes, {
   prefix: "/api/donors",
+});
+
+await fastify.register(messageRoutes, {
+  prefix: "/api/messages",
 });
 
 try {
