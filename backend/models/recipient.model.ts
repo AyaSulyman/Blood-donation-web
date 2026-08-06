@@ -10,6 +10,7 @@ const recipientSchema = new Schema<IBloodRecipients>(
   {
     user: {
       type: Schema.Types.ObjectId,
+      ref: "User",
       required: [true, "ID is required"],
     },
     patientName: {
