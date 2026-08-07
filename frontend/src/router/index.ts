@@ -1,3 +1,5 @@
+// src/router/index.ts
+
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import DonateView from '@/views/DonateView.vue'
@@ -58,6 +60,18 @@ const router = createRouter({
       path: '/recipients',
       name: 'recipients',
       component: () => import('@/views/RecipientsView.vue'),
+    },
+    // Donation details route
+    {
+      path: '/donations/:id',
+      name: 'donation-details',
+      component: () => import('@/views/DonationDetailsView.vue'),
+    },
+    // Catch-all 404 route (optional but recommended)
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/views/NotFoundView.vue'),
     },
   ],
 })

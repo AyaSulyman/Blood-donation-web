@@ -56,6 +56,7 @@
                 placeholder="your_username"
                 :class="[$style.input, touched.username && errors.username && $style.inputError]"
                 @blur="touched.username = true"
+                @keydown.enter="handleSubmit"
               />
             </div>
             <span v-if="touched.username && errors.username" :class="$style.fieldError">{{ errors.username }}</span>
@@ -76,6 +77,7 @@
                 placeholder="Enter your password"
                 :class="[$style.input, touched.password && errors.password && $style.inputError]"
                 @blur="touched.password = true"
+                @keydown.enter="handleSubmit"
               />
               <button 
                 type="button" 
@@ -103,11 +105,19 @@
             <RouterLink to="/forgot-password" :class="$style.link">Forgot password?</RouterLink>
           </div>
 
-          <button type="submit" :class="$style.submitBtn" :disabled="authStore.loading">
-            {{ authStore.loading ? 'Logging in…' : 'Log in' }}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
+          <button type="submit" :class="$style.submitBtn" :disabled="authStore.loading || !isValid">
+            <span v-if="authStore.loading">
+              <svg :class="$style.spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" stroke-dasharray="31.4" stroke-dashoffset="25" />
+              </svg>
+              Logging in…
+            </span>
+            <span v-else>
+              Log in
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </span>
           </button>
         </form>
 
@@ -120,7 +130,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, ref } from 'vue'
+import { reactive, computed, ref, onMounted } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import AuthAyahPanel from '@/components/AuthAyahPanel.vue'
@@ -128,6 +138,14 @@ import AuthAyahPanel from '@/components/AuthAyahPanel.vue'
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+
+// Redirect to dashboard if already logged in
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    console.log('✅ Already authenticated, redirecting to dashboard')
+    router.push('/dashboard')
+  }
+})
 
 const showRegisteredBanner = computed(() => route.query.registered === 'true')
 
@@ -149,29 +167,63 @@ const errors = computed(() => {
 
   if (!form.username) {
     e.username = 'Username is required'
+  } else if (form.username.length < 3) {
+    e.username = 'Username must be at least 3 characters'
   }
 
   if (!form.password) {
     e.password = 'Password is required'
+  } else if (form.password.length < 6) {
+    e.password = 'Password must be at least 6 characters'
   }
 
   return e
 })
 
-const isValid = computed(() => Object.keys(errors.value).length === 0)
+const isValid = computed(() => {
+  const hasUsername = form.username && form.username.length >= 3
+  const hasPassword = form.password && form.password.length >= 6
+  return hasUsername && hasPassword
+})
 
 async function handleSubmit() {
+  // Mark all fields as touched
   touched.username = true
   touched.password = true
 
-  if (!isValid.value) return
+  // Check if form is valid
+  if (!isValid.value) {
+    console.log('❌ Form validation failed:', errors.value)
+    return
+  }
+
+  console.log('🔐 Attempting login with:', { username: form.username })
 
   try {
-    await authStore.login({ username: form.username, password: form.password })
-    const redirectPath = (route.query.redirect as string) || '/'
-    router.push(redirectPath)
-  } catch {
-    // authStore.error already holds the message
+    await authStore.login({ 
+      username: form.username, 
+      password: form.password 
+    })
+    
+    console.log('✅ Login successful, redirecting to dashboard...')
+    
+    // Redirect to dashboard after successful login
+    const redirectPath = (route.query.redirect as string) || '/dashboard'
+    await router.push(redirectPath)
+    
+  } catch (err: any) {
+    // Error is already stored in authStore.error
+    console.error('❌ Login failed:', err.message || err)
+    
+    // Clear password field on error for security
+    form.password = ''
+  }
+}
+
+// Clear any previous errors when user types
+function clearError() {
+  if (authStore.error) {
+    authStore.error = null
   }
 }
 </script>
@@ -365,6 +417,10 @@ async function handleSubmit() {
   &:hover {
     border-color: #9ca3af;
   }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
 }
 
 .inputError {
@@ -379,6 +435,7 @@ async function handleSubmit() {
 .fieldError {
   font-size: 0.75rem;
   color: #dc2626;
+  margin-top: 0.25rem;
 }
 
 .togglePassword {
@@ -420,6 +477,9 @@ async function handleSubmit() {
 
   input {
     accent-color: #c81e2c;
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
   }
 }
 
@@ -448,7 +508,7 @@ async function handleSubmit() {
   border: none;
   border-radius: 9999px;
   cursor: pointer;
-  transition: background-color 0.2s ease, opacity 0.2s ease;
+  transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
 
   svg {
     width: 1.1rem;
@@ -457,6 +517,11 @@ async function handleSubmit() {
 
   &:hover:not(:disabled) {
     background: #000000;
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 
   &:disabled {
@@ -465,10 +530,65 @@ async function handleSubmit() {
   }
 }
 
+.spinner {
+  animation: spin 0.8s linear infinite;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .switchText {
   margin-top: 1.5rem;
   text-align: center;
   font-size: 0.8125rem;
   color: #6b6459;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
+  }
+
+  .secureBadge {
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.625rem;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .card {
+    max-width: 100%;
+    padding: 0 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .rowBetween {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .submitBtn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+  }
 }
 </style>

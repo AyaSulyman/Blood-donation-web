@@ -1,5 +1,3 @@
-// src/routes/recipients.route.ts
-
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { createBloodRecipientHandler } from "../controllers/recipients.controller";
 import { recipientSchema } from "../schemas/recipients.schema";
@@ -44,6 +42,7 @@ export default async function recipientsRoutes(fastify: FastifyInstance) {
   );
 
   // GET - ALL recipients (public - no authentication)
+  // Make sure this route is registered BEFORE the /:id route if you have one
   fastify.get(
     "/all",
     async (request: FastifyRequest, reply: FastifyReply) => {

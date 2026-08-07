@@ -1,3 +1,5 @@
+<!-- src/views/RecipientsView.vue -->
+
 <template>
   <div :class="$style.pageWrapper">
     <AppNavbar />
@@ -13,10 +15,14 @@
         </router-link>
 
         <header :class="$style.headerSection">
-          <h1 :class="$style.pageTitle">Blood Recipients Needing Help</h1>
-          <p :class="$style.pageSubtitle">
-            Browse verified emergency blood requests from hospitals and medical centers across Lebanon.
-          </p>
+          <div :class="$style.headerRow">
+            <div>
+              <h1 :class="$style.pageTitle">All Blood Recipients</h1>
+              <p :class="$style.pageSubtitle">
+                Browse all blood recipients and their requirements.
+              </p>
+            </div>
+          </div>
         </header>
 
         <!-- Search & Filter Controls -->
@@ -37,52 +43,65 @@
           </div>
 
           <div :class="$style.inputGroup">
-            <label>City or Hospital</label>
+            <label>Search</label>
             <input 
               v-model="searchQuery" 
               type="text" 
-              placeholder="e.g. Beirut or AUBMC..." 
+              placeholder="Search by patient name..." 
               :class="$style.textInput" 
             />
           </div>
         </div>
 
+        <!-- Loading State -->
+        <div v-if="loading" :class="$style.loadingState">
+          <div :class="$style.spinner"></div>
+          <p>Loading recipients...</p>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="error" :class="$style.errorState">
+          <p>{{ error }}</p>
+          <button :class="$style.retryBtn" @click="loadRecipients">Retry</button>
+        </div>
+
         <!-- Recipients Grid -->
-        <div :class="$style.recipientsGrid">
+        <div v-else :class="$style.recipientsGrid">
           <div 
             v-for="recipient in filteredRecipients" 
-            :key="recipient.id" 
+            :key="recipient._id" 
             :class="$style.recipientCard"
           >
             <div :class="$style.cardHeader">
               <span :class="$style.bloodBadge">{{ recipient.bloodType }}</span>
-              <span 
-                :class="[
-                  $style.urgencyTag, 
-                  recipient.urgency === 'Critical' ? $style.critical : $style.high
-                ]"
-              >
-                {{ recipient.urgency }}
-              </span>
+              <span :class="$style.urgencyTag">Active</span>
             </div>
 
-            <h3 :class="$style.recName">{{ recipient.name }}</h3>
-            <p :class="$style.recMeta">🏥 {{ recipient.hospital }}, {{ recipient.city }}</p>
-            <p :class="$style.recUnits">Required: <strong>{{ recipient.units }} Unit(s)</strong></p>
-            <p :class="$style.recNotes" v-if="recipient.notes">"{{ recipient.notes }}"</p>
+            <h3 :class="$style.recName">{{ recipient.patientName }}</h3>
+            <p :class="$style.recMeta">🩸 {{ recipient.bloodType }} · {{ recipient.bloodUnits }} Units needed</p>
+            <p :class="$style.recUnits">Required: <strong>{{ recipient.bloodUnits }} Unit(s)</strong></p>
+            <p v-if="recipient.user && typeof recipient.user !== 'string'" :class="$style.recMeta">
+              👤 Created by: {{ recipient.user.name || 'Unknown' }}
+            </p>
+            <p :class="$style.recDate">📅 {{ formatDate(recipient.createdAt) }}</p>
 
-            <button :class="$style.btnRespond" @click="openDonationForm(recipient)">
-              Donate for {{ recipient.name.split(' ')[0] }}
+            <button :class="$style.btnViewDetails" @click="openDetailsModal(recipient)">
+              View Details
             </button>
           </div>
+        </div>
+
+        <!-- Empty State -->
+        <div v-if="!loading && !error && recipients.length === 0" :class="$style.emptyState">
+          <p>No recipients found.</p>
         </div>
       </div>
     </main>
 
-    <!-- ENHANCED DONATION FORM MODAL -->
+    <!-- RECIPIENT DETAILS MODAL -->
     <Teleport to="body">
       <Transition name="modal-fade">
-        <div v-if="isModalOpen && selectedRecipient" :class="$style.modalOverlay" @click.self="closeDonationForm">
+        <div v-if="isDetailsModalOpen && selectedRecipient" :class="$style.modalOverlay" @click.self="closeDetailsModal">
           <div :class="$style.modalCard">
             <!-- Modal Header -->
             <div :class="$style.modalHeader">
@@ -92,65 +111,71 @@
                 </svg>
               </div>
               <div :class="$style.headerTitles">
-                <h3>Pledge Blood Donation</h3>
-                <p>For {{ selectedRecipient.name }} ({{ selectedRecipient.bloodType }})</p>
+                <h3>Recipient Details</h3>
+                <p>{{ selectedRecipient.patientName }}</p>
               </div>
-              <button :class="$style.btnClose" @click="closeDonationForm" aria-label="Close Modal">&times;</button>
+              <button :class="$style.btnClose" @click="closeDetailsModal" aria-label="Close Modal">&times;</button>
             </div>
 
-            <!-- Modal Content & Form -->
-            <form @submit.prevent="submitDonation" :class="$style.modalForm">
-              <div :class="$style.modalScrollArea">
-                <!-- Overview Info Card -->
-                <div :class="$style.summaryCard">
-                  <div :class="$style.summaryRow">
-                    <span :class="$style.summaryLabel">Hospital Target:</span>
-                    <span :class="$style.summaryValue">{{ selectedRecipient.hospital }} ({{ selectedRecipient.city }})</span>
-                  </div>
-                  <div :class="$style.summaryRow">
-                    <span :class="$style.summaryLabel">Blood Needed:</span>
-                    <span :class="$style.summaryBadge">{{ selectedRecipient.bloodType }} — {{ selectedRecipient.units }} Unit(s)</span>
-                  </div>
+            <!-- Modal Content -->
+            <div :class="$style.modalBody">
+              <div :class="$style.detailsGrid">
+                <!-- Patient Name -->
+                <div :class="$style.detailItem">
+                  <span :class="$style.detailLabel">Patient Name</span>
+                  <span :class="$style.detailValue">{{ selectedRecipient.patientName }}</span>
                 </div>
 
-                <!-- Input Fields -->
-                <div :class="$style.formField">
-                  <label for="donorName">Full Name <span :class="$style.required">*</span></label>
-                  <input id="donorName" v-model="form.donorName" type="text" placeholder="e.g. Aya Sulyman" required :class="$style.input" />
+                <!-- Blood Type -->
+                <div :class="$style.detailItem">
+                  <span :class="$style.detailLabel">Blood Type</span>
+                  <span :class="[$style.detailValue, $style.bloodTypeBadge]">
+                    {{ selectedRecipient.bloodType }}
+                  </span>
                 </div>
 
-                <div :class="$style.formField">
-                  <label for="donorPhone">Phone Number <span :class="$style.required">*</span></label>
-                  <input id="donorPhone" v-model="form.donorPhone" type="tel" placeholder="+961 70 000 000" required :class="$style.input" />
+                <!-- Units Needed -->
+                <div :class="$style.detailItem">
+                  <span :class="$style.detailLabel">Units Needed</span>
+                  <span :class="$style.detailValue">{{ selectedRecipient.bloodUnits }} Unit(s)</span>
                 </div>
 
-                <div :class="$style.formRow">
-                  <div :class="$style.formField">
-                    <label for="pledgedUnits">Units to Donate</label>
-                    <select id="pledgedUnits" v-model="form.unitsPledged" :class="$style.input">
-                      <option :value="1">1 Unit (450 ml)</option>
-                      <option :value="2">2 Units</option>
-                    </select>
-                  </div>
-
-                  <div :class="$style.formField">
-                    <label for="targetDate">Intended Date <span :class="$style.required">*</span></label>
-                    <input id="targetDate" v-model="form.targetDate" type="date" required :class="$style.input" />
-                  </div>
+                <!-- Created By -->
+                <div :class="$style.detailItem">
+                  <span :class="$style.detailLabel">Created By</span>
+                  <span :class="$style.detailValue">
+                    {{ selectedRecipient.user && typeof selectedRecipient.user !== 'string' 
+                      ? selectedRecipient.user.name || 'Unknown' 
+                      : 'Unknown' }}
+                  </span>
                 </div>
 
-                <div :class="$style.formField">
-                  <label for="notes">Notes for Hospital / Family</label>
-                  <textarea id="notes" v-model="form.notes" rows="3" placeholder="e.g. Available tomorrow morning after 9 AM..." :class="$style.textarea"></textarea>
+                <!-- Created At -->
+                <div :class="$style.detailItem">
+                  <span :class="$style.detailLabel">Created At</span>
+                  <span :class="$style.detailValue">{{ formatDate(selectedRecipient.createdAt) }}</span>
+                </div>
+
+                <!-- Updated At -->
+                <div :class="$style.detailItem">
+                  <span :class="$style.detailLabel">Last Updated</span>
+                  <span :class="$style.detailValue">{{ formatDate(selectedRecipient.updatedAt) }}</span>
+                </div>
+
+                <!-- ID -->
+                <div :class="$style.detailItem">
+                  <span :class="$style.detailLabel">Recipient ID</span>
+                  <span :class="[$style.detailValue, $style.idValue]">{{ selectedRecipient._id }}</span>
                 </div>
               </div>
 
-              <!-- Fixed Form Footer Controls -->
+              <!-- Close Button -->
               <div :class="$style.modalActions">
-                <button type="button" :class="$style.btnCancel" @click="closeDonationForm">Cancel</button>
-                <button type="submit" :class="$style.btnSubmit">Confirm Pledge</button>
+                <button type="button" :class="$style.btnCloseModal" @click="closeDetailsModal">
+                  Close
+                </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </Transition>
@@ -161,76 +186,83 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import AppNavbar from '@/components/AppNavbar.vue';
 import AppFooter from '@/components/AppFooter.vue';
+import { fetchAllRecipients } from '@/services/recipient.service';
+import type { BloodRecipient } from '@/services/recipient.service';
 
-interface Recipient {
-  id: number;
-  name: string;
-  bloodType: string;
-  city: string;
-  hospital: string;
-  units: number;
-  urgency: 'Critical' | 'High' | 'Normal';
-  notes?: string;
-}
-
+// State
+const recipients = ref<BloodRecipient[]>([]);
+const loading = ref(false);
+const error = ref<string | null>(null);
 const selectedType = ref('Any');
 const searchQuery = ref('');
 
-const recipients = ref<Recipient[]>([
-  { id: 101, name: 'Hadi Sleiman', bloodType: 'O+', city: 'Beirut', hospital: 'AUBMC', units: 2, urgency: 'Critical', notes: 'Needed urgently for surgery tomorrow morning.' },
-  { id: 102, name: 'Nour El Hage', bloodType: 'O+', city: 'Sidon', hospital: 'Labib Medical Center', units: 1, urgency: 'High', notes: 'Post-trauma recovery.' },
-  { id: 103, name: 'Maya Khoury', bloodType: 'A-', city: 'Byblos', hospital: 'Notre Dame des Secours', units: 3, urgency: 'Critical', notes: 'Emergency ICU requirement.' },
-  { id: 104, name: 'Tarek Ziad', bloodType: 'B+', city: 'Beirut', hospital: 'Hotel Dieu de France', units: 2, urgency: 'High', notes: 'Scheduled treatment.' },
-  { id: 105, name: 'Youssef Ali', bloodType: 'AB+', city: 'Tyre', hospital: 'Hiram Hospital', units: 1, urgency: 'Normal', notes: 'Routine transfusion.' },
-]);
+// Details Modal state
+const isDetailsModalOpen = ref(false);
+const selectedRecipient = ref<BloodRecipient | null>(null);
 
+// Load recipients from API
+const loadRecipients = async () => {
+  loading.value = true;
+  error.value = null;
+  
+  try {
+    console.log('📥 Loading recipients...');
+    const data = await fetchAllRecipients();
+    recipients.value = data;
+    console.log('✅ Recipients loaded:', data.length);
+  } catch (err: any) {
+    console.error('❌ Failed to load recipients:', err);
+    error.value = err.response?.data?.message || 'Failed to load recipients. Please try again.';
+    recipients.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Filter recipients
 const filteredRecipients = computed(() => {
   return recipients.value.filter(item => {
     const matchesType = selectedType.value === 'Any' || item.bloodType === selectedType.value;
-    const matchesSearch = item.city.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
-                          item.hospital.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                          item.name.toLowerCase().includes(searchQuery.value.toLowerCase());
+    const matchesSearch = item.patientName.toLowerCase().includes(searchQuery.value.toLowerCase());
     return matchesType && matchesSearch;
   });
 });
 
-/* Modal Form State Logic */
-const isModalOpen = ref(false);
-const selectedRecipient = ref<Recipient | null>(null);
+// Format date
+const formatDate = (dateString: string) => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch {
+    return dateString;
+  }
+};
 
-const form = ref({
-  donorName: '',
-  donorPhone: '',
-  unitsPledged: 1,
-  targetDate: new Date().toISOString().split('T')[0],
-  notes: ''
-});
-
-const openDonationForm = (recipient: Recipient) => {
+// Details Modal functions
+const openDetailsModal = (recipient: BloodRecipient) => {
   selectedRecipient.value = recipient;
-  isModalOpen.value = true;
+  isDetailsModalOpen.value = true;
 };
 
-const closeDonationForm = () => {
-  isModalOpen.value = false;
+const closeDetailsModal = () => {
+  isDetailsModalOpen.value = false;
   selectedRecipient.value = null;
-  form.value = {
-    donorName: '',
-    donorPhone: '',
-    unitsPledged: 1,
-    targetDate: new Date().toISOString().split('T')[0],
-    notes: ''
-  };
 };
 
-const submitDonation = () => {
-  if (!selectedRecipient.value) return;
-  alert(`Thank you, ${form.value.donorName}! Your pledge to donate blood for ${selectedRecipient.value.name} at ${selectedRecipient.value.hospital} has been registered.`);
-  closeDonationForm();
-};
+// Load data on mount
+onMounted(() => {
+  loadRecipients();
+});
 </script>
 
 <style module lang="scss">
@@ -281,19 +313,27 @@ $border-color: #e2e8f0;
 
 .headerSection {
   margin-bottom: 2rem;
+}
 
-  .pageTitle {
-    font-size: 2rem;
-    font-weight: 800;
-    color: $text-dark;
-    margin: 0 0 0.5rem 0;
-  }
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
 
-  .pageSubtitle {
-    font-size: 1rem;
-    color: $text-muted;
-    margin: 0;
-  }
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 800;
+  color: $text-dark;
+  margin: 0 0 0.5rem 0;
+}
+
+.pageSubtitle {
+  font-size: 1rem;
+  color: $text-muted;
+  margin: 0;
 }
 
 .filterBar {
@@ -337,6 +377,55 @@ $border-color: #e2e8f0;
   }
 }
 
+.loadingState {
+  text-align: center;
+  padding: 4rem 0;
+  color: $text-muted;
+}
+
+.spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid #f3f0eb;
+  border-top-color: $color-primary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.errorState {
+  text-align: center;
+  padding: 3rem 0;
+  color: #dc2626;
+}
+
+.retryBtn {
+  padding: 0.5rem 1.5rem;
+  background: $text-dark;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 0.5rem;
+
+  &:hover {
+    background: #000000;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 0;
+  color: $text-muted;
+  font-style: italic;
+}
+
 .recipientsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -375,16 +464,8 @@ $border-color: #e2e8f0;
         font-weight: 700;
         padding: 0.2rem 0.5rem;
         border-radius: 9999px;
-
-        &.critical {
-          background-color: #fee2e2;
-          color: #991b1b;
-        }
-
-        &.high {
-          background-color: #fef3c7;
-          color: #92400e;
-        }
+        background-color: #dcfce7;
+        color: #166534;
       }
     }
 
@@ -395,23 +476,13 @@ $border-color: #e2e8f0;
       margin: 0 0 0.375rem 0;
     }
 
-    .recMeta, .recUnits {
+    .recMeta, .recUnits, .recDate {
       font-size: 0.875rem;
       color: $text-muted;
       margin: 0 0 0.375rem 0;
     }
 
-    .recNotes {
-      font-size: 0.875rem;
-      font-style: italic;
-      color: #475569;
-      background-color: #f8fafc;
-      padding: 0.625rem;
-      border-radius: 0.375rem;
-      margin: 0.5rem 0 1rem 0;
-    }
-
-    .btnRespond {
+    .btnViewDetails {
       width: 100%;
       margin-top: auto;
       padding: 0.625rem;
@@ -431,10 +502,9 @@ $border-color: #e2e8f0;
   }
 }
 
-/* ==========================================================================
-   FORM DESIGN & RESPONSIVE MODAL STYLES
-   ========================================================================== */
-
+/* ============================================
+   DETAILS MODAL STYLES
+   ============================================ */
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -526,156 +596,79 @@ $border-color: #e2e8f0;
   }
 }
 
-.modalForm {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+/* Details Modal Body */
+.modalBody {
+  padding: 1.5rem;
+  overflow-y: auto;
   flex: 1;
 }
 
-.modalScrollArea {
-  padding: 1.5rem;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-
-  @media (max-width: 540px) {
-    padding: 1.125rem;
-    gap: 1rem;
-  }
-}
-
-/* Summary Box */
-.summaryCard {
-  background-color: #fef2f2;
-  border: 1px dashed #fca5a5;
-  border-radius: 0.625rem;
-  padding: 0.875rem 1rem;
+.detailsGrid {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-
-  .summaryRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.8125rem;
-
-    .summaryLabel {
-      color: #64748b;
-    }
-
-    .summaryValue {
-      font-weight: 600;
-      color: $text-dark;
-    }
-
-    .summaryBadge {
-      font-weight: 700;
-      color: $color-primary;
-    }
-  }
+  margin-bottom: 1.5rem;
 }
 
-/* Form Group Controls */
-.formField {
+.detailItem {
   display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f1f5f9;
 
-  label {
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .detailLabel {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: #334155;
-
-    .required {
-      color: $color-primary;
-    }
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
-  .input, .textarea {
-    width: 100%;
-    padding: 0.625rem 0.875rem;
-    border: 1px solid $border-color;
-    border-radius: 0.5rem;
+  .detailValue {
     font-size: 0.9375rem;
+    font-weight: 500;
     color: $text-dark;
-    background-color: #ffffff;
-    outline: none;
-    font-family: inherit;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    text-align: right;
+    max-width: 60%;
+    word-break: break-word;
 
-    @media (max-width: 540px) {
-      min-height: 2.75rem; /* Better touch target for mobile */
+    &.bloodTypeBadge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background-color: #fef2f2;
+      color: $color-primary;
+      border-radius: 0.375rem;
+      font-weight: 700;
     }
 
-    &::placeholder {
-      color: #94a3b8;
+    &.idValue {
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: $text-muted;
+      font-family: monospace;
     }
-
-    &:focus {
-      border-color: $color-primary;
-      box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.12);
-    }
-  }
-
-  .textarea {
-    resize: vertical;
-    min-height: 80px;
   }
 }
 
-/* Responsive Grid Form Layout */
-.formRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-
-  @media (max-width: 540px) {
-    grid-template-columns: 1fr; /* Mobile collapse */
-    gap: 1rem;
-  }
-}
-
-/* Modal Bottom Actions */
 .modalActions {
-  padding: 1rem 1.5rem;
-  background-color: #f8fafc;
+  padding: 1rem 0 0 0;
   border-top: 1px solid $border-color;
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  flex-shrink: 0;
 
   @media (max-width: 540px) {
-    padding: 0.875rem 1.125rem;
+    padding: 0.875rem 0 0 0;
   }
 
-  .btnCancel {
-    padding: 0.625rem 1.25rem;
-    background: #ffffff;
-    border: 1px solid $border-color;
-    border-radius: 0.5rem;
-    color: #475569;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-
-    &:hover {
-      background-color: #f1f5f9;
-      color: $text-dark;
-    }
-
-    @media (max-width: 540px) {
-      flex: 1;
-    }
-  }
-
-  .btnSubmit {
-    padding: 0.625rem 1.25rem;
-    background-color: $color-primary;
+  .btnCloseModal {
+    padding: 0.625rem 1.5rem;
+    background: $color-primary;
     border: none;
     border-radius: 0.5rem;
     color: #ffffff;
@@ -689,7 +682,7 @@ $border-color: #e2e8f0;
     }
 
     @media (max-width: 540px) {
-      flex: 2;
+      width: 100%;
     }
   }
 }
