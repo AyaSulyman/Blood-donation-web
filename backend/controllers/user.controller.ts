@@ -79,7 +79,7 @@ export async function getUserHandler(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { username } = request.user as { username: string };
+  const { username } = (request as any).user as { username: string };
   const existingUser = await User.findOne({ username });
   if (!existingUser) {
     return reply.code(404).send({ message: "Login First" });
@@ -92,7 +92,7 @@ export async function getUserDonationListHandler(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { id } = request.user as { id: string };
+  const { id } =(request as any).user as { id: string };
   const existingUser = await BloodDonation.find({ user: id }).populate("center", "name address city phone");
   if (!existingUser) {
     return reply.code(404).send({ message: "Login First" });
@@ -105,7 +105,7 @@ export async function getUserReceiptListHandler(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { id } = request.user as { id: string };
+  const { id } =  (request as any).user as { id: string };
   const userReceiptList = await BloodRecipients.find({ user: id }).populate("user", "name phone");
   if (!userReceiptList) {
     return reply.code(404).send({ message: "Login First" });
